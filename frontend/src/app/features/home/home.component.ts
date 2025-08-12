@@ -19,15 +19,22 @@ import { NgIf } from '@angular/common';
     NgIf,
   ],
   template: `
-    <div class="bg-gradient-to-br from-orange-50 to-orange-100">
+    <div class="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
       <app-hero></app-hero>
 
       <ng-container *ngIf="isLoggedIn()">
-        <app-all-posts></app-all-posts>
+        <div class="section-padding-sm">
+          <app-all-posts></app-all-posts>
+        </div>
       </ng-container>
 
-      <app-how-it-works></app-how-it-works>
-      <app-cta-section></app-cta-section>
+      <div class="section-padding-sm">
+        <app-how-it-works></app-how-it-works>
+      </div>
+      
+      <div class="section-padding-sm">
+        <app-cta-section></app-cta-section>
+      </div>
     </div>
   `,
 })

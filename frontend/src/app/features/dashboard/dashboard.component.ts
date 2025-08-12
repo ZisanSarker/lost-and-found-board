@@ -1,5 +1,5 @@
 // dashboard.component.ts
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -32,17 +32,53 @@ import { DashboardHeaderComponent } from '../../shared/components/dashboard-head
     DashboardHeaderComponent,
   ],
   template: `
-    <div class="bg-orange-50 min-h-screen">
-      <div class="container mx-auto px-4 py-12">
+    <div class="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
+      <div class="container-responsive py-6 sm:py-8 lg:py-12">
         <!-- Page Header -->
         <app-dashboard-header
           (reportLostItem)="onReportLostItem()"
           (reportFoundItem)="onReportFoundItem()"
         />
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <!-- Sidebar -->
-          <div class="lg:col-span-1">
+        <!-- Mobile Navigation Toggle -->
+        <div class="lg:hidden mb-6">
+          <button
+            (click)="toggleMobileSidebar()"
+            class="w-full btn-responsive bg-white text-orange-700 border border-orange-200 hover:bg-orange-50 transition-colors flex items-center justify-center gap-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <span>{{ showMobileSidebar ? 'Hide' : 'Show' }} Dashboard Menu</span>
+          </button>
+        </div>
+
+        <!-- Mobile Sidebar Overlay -->
+        <div 
+          *ngIf="showMobileSidebar" 
+          class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          (click)="closeMobileSidebar()"
+        ></div>
+
+        <!-- Mobile Sidebar -->
+        <div 
+          *ngIf="showMobileSidebar"
+          class="lg:hidden fixed left-0 top-0 h-full w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out"
+        >
+          <div class="p-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold text-gray-900">Dashboard Menu</h3>
+              <button 
+                (click)="closeMobileSidebar()"
+                class="text-gray-500 hover:text-gray-700"
+              >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="p-4 space-y-4 overflow-y-auto h-full">
             <app-profile-sidebar/>
             <app-notification-sidebar
               [activeTab]="activeTab"
@@ -51,25 +87,44 @@ import { DashboardHeaderComponent } from '../../shared/components/dashboard-head
               (tabChange)="setActiveTab($event)"
             />
           </div>
+        </div>
 
-          <!-- Main Content -->
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
+          <!-- Desktop Sidebar -->
+          <div class="hidden lg:block lg:col-span-1">
+            <div class="space-y-6">
+              <app-profile-sidebar/>
+              <app-notification-sidebar
+                [activeTab]="activeTab"
+                [unreadMessagesCount]="getUnreadMessagesCount()"
+                [unreadNotificationsCount]="getUnreadNotificationsCount()"
+                (tabChange)="setActiveTab($event)"
+              />
+            </div>
+          </div>
+
+          <!-- Main Content Area -->
           <div class="lg:col-span-3">
+            <!-- Loading State -->
             <div
               *ngIf="isLoading"
-              class="flex justify-center items-center h-64"
+              class="flex justify-center items-center h-64 bg-white rounded-lg shadow-sm"
             >
-              <div
-                class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"
-              ></div>
+              <div class="text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
+                <p class="text-sm sm:text-base text-gray-600">Loading your dashboard...</p>
+              </div>
             </div>
 
+            <!-- Error State -->
             <div
-              *ngIf="errorMessage"
-              class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
+              *ngIf="errorMessage && !isLoading"
+              class="bg-red-50 border border-red-200 rounded-lg p-4 sm:p-6 mb-6"
             >
-              <div class="flex">
+              <div class="flex items-start">
                 <svg
-                  class="w-5 h-5 text-red-400 mr-2"
+                  class="w-5 h-5 text-red-400 mr-3 mt-0.5 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -81,16 +136,19 @@ import { DashboardHeaderComponent } from '../../shared/components/dashboard-head
                     d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   ></path>
                 </svg>
-                <p class="text-red-700">{{ errorMessage }}</p>
+                <div class="flex-1">
+                  <p class="text-sm sm:text-base text-red-700 mb-2">{{ errorMessage }}</p>
+                  <button
+                    (click)="loadData()"
+                    class="btn-responsive-sm bg-red-600 text-white hover:bg-red-700 transition-colors"
+                  >
+                    Try again
+                  </button>
+                </div>
               </div>
-              <button
-                (click)="loadData()"
-                class="mt-2 text-red-600 hover:text-red-800 underline"
-              >
-                Try again
-              </button>
             </div>
 
+            <!-- Content -->
             <ng-container *ngIf="!isLoading && !errorMessage">
               <!-- Only render MyListingsComponent if currentUserId is available -->
               <app-my-listings 
@@ -98,12 +156,21 @@ import { DashboardHeaderComponent } from '../../shared/components/dashboard-head
                 [userId]="currentUserId">
               </app-my-listings>
               
-              <!-- Show message if no user ID available -->
-              <div 
-                *ngIf="!currentUserId" 
-                class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6"
-              >
-                <p class="text-yellow-700">Unable to load user information. Please try logging in again.</p>
+              <!-- Fallback if no user ID -->
+              <div *ngIf="!currentUserId" class="bg-white rounded-lg shadow-sm p-6 sm:p-8 text-center">
+                <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">User Information Not Available</h3>
+                <p class="text-sm sm:text-base text-gray-600 mb-4">
+                  Unable to load your user information. Please try refreshing the page.
+                </p>
+                <button
+                  (click)="loadData()"
+                  class="btn-responsive bg-orange-500 text-white hover:bg-orange-600 transition-colors"
+                >
+                  Refresh Page
+                </button>
               </div>
             </ng-container>
           </div>
@@ -113,103 +180,81 @@ import { DashboardHeaderComponent } from '../../shared/components/dashboard-head
   `,
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  // 🟢 Set 'my-listings' as default
-  activeTab: string = 'my-listings';
-  isLoading: boolean = false;
-  errorMessage: string = '';
+  isLoading = true;
+  errorMessage = '';
+  activeTab = 'notifications';
   currentUserId: string | null = null;
-  private subscriptions: Subscription = new Subscription();
+  showMobileSidebar = false;
 
-  myListings: Listing[] = [];
-  messages: Message[] = [];
-  notifications: Notification[] = [];
+  private dataService = inject(DataService);
+  private authService = inject(AuthService);
+  private subscription = new Subscription();
 
-  constructor(
-    private dataService: DataService,
-    private authService: AuthService
-  ) {}
-
-  ngOnInit(): void {
-    this.initializeUser();
+  ngOnInit() {
     this.loadData();
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 
-  private initializeUser(): void {
-    // Subscribe to user changes to handle real-time updates
-    const userSubscription = this.authService.user$.subscribe({
-      next: (user) => {
-        if (user && user.id) {
-          this.currentUserId = user.id;
-        } else {
-          this.currentUserId = null;
-          // If no user, redirect to login
-          if (!this.authService.isLoggedIn()) {
-            this.authService.logout();
-          }
-        }
-      },
-      error: (error) => {
-        console.error('Error getting user information:', error);
-        this.currentUserId = null;
-      }
-    });
-
-    this.subscriptions.add(userSubscription);
-
-    // Also try to get user immediately (in case user$ hasn't emitted yet)
-    const currentUser = this.authService.getUser();
-    if (currentUser && currentUser.id) {
-      this.currentUserId = currentUser.id;
-    }
-  }
-
-  loadData(): void {
+  loadData() {
     this.isLoading = true;
     this.errorMessage = '';
 
-    const dataSubscription = this.dataService.getData().subscribe({
-      next: (data) => {
-        this.myListings = data.myListings || [];
-        this.messages = data.messages || [];
-        this.notifications = data.notifications || [];
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading data:', error);
-        this.errorMessage = 'Failed to load data. Please try again.';
-        this.isLoading = false;
-      },
-    });
+    // Get current user ID
+    const user = this.authService.getCurrentUser();
+    this.currentUserId = user?.id || null;
 
-    this.subscriptions.add(dataSubscription);
+    if (!this.currentUserId) {
+      this.errorMessage = 'User information not available. Please log in again.';
+      this.isLoading = false;
+      return;
+    }
+
+    // Load dashboard data
+    this.subscription.add(
+      this.dataService.getDashboardData().subscribe({
+        next: (data) => {
+          this.isLoading = false;
+          // Handle dashboard data
+        },
+        error: (error) => {
+          console.error('Dashboard loading error:', error);
+          this.errorMessage = 'Failed to load dashboard data. Please try again.';
+          this.isLoading = false;
+        }
+      })
+    );
   }
 
-  setActiveTab(tab: string): void {
+  setActiveTab(tab: string) {
     this.activeTab = tab;
   }
 
   getUnreadMessagesCount(): number {
-    return this.messages.filter((m) => m?.unread).length;
+    return this.dataService.getUnreadMessagesCount();
   }
 
   getUnreadNotificationsCount(): number {
-    return this.notifications.filter((n) => n?.unread).length;
+    return this.dataService.getUnreadNotificationsCount();
   }
 
-  getResolvedCount(): number {
-    return this.myListings.filter((listing) => listing?.status === 'resolved')
-      .length;
+  onReportLostItem() {
+    // Navigate to report lost item page
+    console.log('Report lost item clicked');
   }
 
-  onReportLostItem(): void {
-    console.log('Navigate to report lost item');
+  onReportFoundItem() {
+    // Navigate to report found item page
+    console.log('Report found item clicked');
   }
 
-  onReportFoundItem(): void {
-    console.log('Navigate to report found item');
+  toggleMobileSidebar() {
+    this.showMobileSidebar = !this.showMobileSidebar;
+  }
+
+  closeMobileSidebar() {
+    this.showMobileSidebar = false;
   }
 }

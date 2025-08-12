@@ -79,4 +79,16 @@ export class DataService {
       });
     });
   }
+
+  getDashboardData(): Observable<ApiResponse> {
+    return this.getData();
+  }
+
+  getUnreadMessagesCount(): number {
+    return 0; // Placeholder implementation
+  }
+
+  getUnreadNotificationsCount(): number {
+    return 0; // Placeholder implementation
+  }
 }

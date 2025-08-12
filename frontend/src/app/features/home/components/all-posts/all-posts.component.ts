@@ -12,58 +12,71 @@ import { ItemFilterService } from '../../../../core/services/item-filter.service
   imports: [CommonModule, ItemGridComponent, SearchBarComponent],
   template: `
     <div class="min-h-screen">
-      <div class="container mx-auto px-4 py-8">
+      <div class="container-responsive py-6 sm:py-8 lg:py-12">
         <!-- Header -->
-        <div class="text-center mb-8">
-          <h1 class="text-5xl font-bold text-orange-800 mb-4 animate-bounce">
+        <div class="text-center mb-6 sm:mb-8 lg:mb-12">
+          <h1 class="text-responsive-2xl font-bold text-orange-800 mb-3 sm:mb-4 animate-bounce">
             Find What Matters Most
           </h1>
-          <p class="text-orange-600 text-xl">
+          <p class="text-responsive-base text-orange-600 max-w-2xl mx-auto leading-relaxed">
             Search through our database of lost and found items to find what
             you're looking for.
           </p>
         </div>
 
         <!-- Search Bar -->
-        <div class="mb-6">
+        <div class="mb-6 sm:mb-8">
           <app-search-bar (search)="onSearch($event)"></app-search-bar>
         </div>
 
         <!-- Tab Switcher -->
-        <div class="flex justify-center mb-8">
-          <div class="bg-white rounded-lg p-1 shadow-md">
-            <button
-              (click)="setActiveTab('lost')"
-              [class]="activeTab === 'lost' ? 'bg-orange-500 text-white' : 'text-orange-500'"
-              class="px-6 py-2 rounded-md font-medium transition-all duration-200"
-            >
-              Lost Items ({{ filteredLostItems.length }})
-            </button>
-            <button
-              (click)="setActiveTab('found')"
-              [class]="activeTab === 'found' ? 'bg-orange-500 text-white' : 'text-orange-500'"
-              class="px-6 py-2 rounded-md font-medium transition-all duration-200"
-            >
-              Found Items ({{ filteredFoundItems.length }})
-            </button>
+        <div class="flex justify-center mb-6 sm:mb-8">
+          <div class="bg-white rounded-lg p-1 shadow-md w-full max-w-md">
+            <div class="grid grid-cols-2 gap-1">
+              <button
+                (click)="setActiveTab('lost')"
+                [class]="activeTab === 'lost' ? 'bg-orange-500 text-white' : 'text-orange-500 hover:bg-orange-50'"
+                class="px-3 sm:px-6 py-2 sm:py-3 rounded-md font-medium transition-all duration-200 text-sm sm:text-base"
+              >
+                <span class="hidden sm:inline">Lost Items</span>
+                <span class="sm:hidden">Lost</span>
+                <span class="block sm:inline">({{ filteredLostItems.length }})</span>
+              </button>
+              <button
+                (click)="setActiveTab('found')"
+                [class]="activeTab === 'found' ? 'bg-orange-500 text-white' : 'text-orange-500 hover:bg-orange-50'"
+                class="px-3 sm:px-6 py-2 sm:py-3 rounded-md font-medium transition-all duration-200 text-sm sm:text-base"
+              >
+                <span class="hidden sm:inline">Found Items</span>
+                <span class="sm:hidden">Found</span>
+                <span class="block sm:inline">({{ filteredFoundItems.length }})</span>
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- Loading State -->
-        <div *ngIf="isLoading" class="text-center py-8">
-          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-          <p class="text-orange-600 mt-2">Loading items...</p>
+        <div *ngIf="isLoading" class="text-center py-8 sm:py-12">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-orange-500"></div>
+          <p class="text-orange-600 mt-2 sm:mt-4 text-sm sm:text-base">Loading items...</p>
         </div>
 
         <!-- Error State -->
-        <div *ngIf="error && !isLoading" class="text-center py-8">
-          <p class="text-red-600">{{ error }}</p>
-          <button 
-            (click)="loadData()" 
-            class="mt-4 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
-          >
-            Try Again
-          </button>
+        <div *ngIf="error && !isLoading" class="text-center py-8 sm:py-12">
+          <div class="max-w-md mx-auto">
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 sm:p-6">
+              <svg class="w-8 h-8 sm:w-12 sm:h-12 text-red-500 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.888-.833-2.658 0L3.156 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <p class="text-red-600 text-sm sm:text-base mb-4">{{ error }}</p>
+              <button 
+                (click)="loadData()" 
+                class="btn-responsive bg-orange-500 text-white hover:bg-orange-600 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Items Grid -->
@@ -75,12 +88,13 @@ import { ItemFilterService } from '../../../../core/services/item-filter.service
         ></app-item-grid>
 
         <!-- See All / Show Less Button -->
-        <div class="text-center mt-6" *ngIf="showToggleButton && !isLoading && !error">
+        <div class="text-center mt-6 sm:mt-8" *ngIf="showToggleButton && !isLoading && !error">
           <button
             (click)="toggleShowAll()"
-            class="bg-orange-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-orange-600 transition-all duration-200"
+            class="btn-responsive-lg bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-all duration-200"
           >
-            {{ showAll ? 'Show Less' : 'See All ' + activeTab + ' Items' }}
+            <span class="hidden sm:inline">{{ showAll ? 'Show Less' : 'See All ' + activeTab + ' Items' }}</span>
+            <span class="sm:hidden">{{ showAll ? 'Show Less' : 'See All' }}</span>
           </button>
         </div>
       </div>

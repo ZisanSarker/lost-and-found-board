@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-export type EmptyStateVariant = 'default' | 'search' | 'filter' | 'error' | 'success';
+export type EmptyStateVariant = 'default' | 'search' | 'filter' | 'error' | 'success' | 'info' | 'empty';
 export type EmptyStateSize = 'sm' | 'md' | 'lg';
 export type EmptyStateLayout = 'compact' | 'centered' | 'expanded';
 
@@ -208,7 +208,9 @@ export class EmptyStateComponent {
       search: 'text-blue-400',
       filter: 'text-yellow-400',
       error: 'text-red-400',
-      success: 'text-green-400'
+      success: 'text-green-400',
+      info: 'text-blue-400',
+      empty: 'text-gray-400'
     };
     return `${sizeClasses[this.size]} ${variantClasses[this.variant]}`;
   }
@@ -256,7 +258,9 @@ export class EmptyStateComponent {
       search: 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500',
       filter: 'bg-yellow-600 hover:bg-yellow-700 text-white focus:ring-yellow-500',
       error: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500',
-      success: 'bg-green-600 hover:bg-green-700 text-white focus:ring-green-500'
+      success: 'bg-green-600 hover:bg-green-700 text-white focus:ring-green-500',
+      info: 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500',
+      empty: 'bg-orange-600 hover:bg-orange-700 text-white focus:ring-orange-500'
     };
     return `${baseClass} ${sizeClasses[this.size]} ${variantClasses[this.variant]} rounded-lg`;
   }

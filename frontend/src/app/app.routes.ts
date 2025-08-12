@@ -90,7 +90,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
         loadComponent: () =>
           import('./features/report/report.component').then(
-            (m) => m.ReportPageComponent
+            (m) => m.ReportComponent
           ),
       },
       {
@@ -106,7 +106,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
         loadComponent: () =>
           import('./pages/item-datail/item-datail.component').then(
-            (m) => m.ItemDetailsComponent
+            (m) => m.ItemDetailComponent
           ),
       }
     ],

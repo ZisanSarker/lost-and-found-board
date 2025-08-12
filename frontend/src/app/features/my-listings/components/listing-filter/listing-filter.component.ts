@@ -8,13 +8,13 @@ import { FilterTab, ListingFilter } from '../../models/listing.model';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="p-6 border-b border-orange-500">
+    <div class="p-4 sm:p-6 border-b border-orange-500">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h3 class="text-xl font-semibold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+          <h3 class="text-lg sm:text-xl font-semibold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
             My Listings
           </h3>
-          <p class="text-gray-700">
+          <p class="text-sm sm:text-base text-gray-700">
             Manage your lost and found item listings
           </p>
         </div>
@@ -40,13 +40,13 @@ import { FilterTab, ListingFilter } from '../../models/listing.model';
               [(ngModel)]="searchQuery"
               (ngModelChange)="onSearchChange($event)"
               (keyup.enter)="onSearch()"
-              class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 w-full"
+              class="pl-10 pr-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 w-full text-sm sm:text-base"
             />
           </div>
           
           <button
             (click)="onSearch()"
-            class="ml-2 p-2 border border-gray-300 rounded-lg hover:border-orange-600 hover:text-orange-700 transition-all duration-300"
+            class="ml-2 p-2 sm:p-3 border border-gray-300 rounded-lg hover:border-orange-600 hover:text-orange-700 transition-all duration-300"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -61,14 +61,14 @@ import { FilterTab, ListingFilter } from '../../models/listing.model';
       </div>
     </div>
 
-    <div class="p-6">
+    <div class="p-4 sm:p-6">
       <!-- Filter Tabs -->
-      <div class="flex bg-orange-50 rounded-lg p-1 mb-6">
+      <div class="flex bg-orange-50 rounded-lg p-1 mb-4 sm:mb-6">
         <button
           *ngFor="let tab of filterTabs"
           [class]="getFilterTabClass(tab.value)"
           (click)="onFilterChange(tab.value)"
-          class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200"
+          class="flex-1 py-2 sm:py-3 px-3 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-all duration-200"
         >
           {{ tab.label }}
         </button>
@@ -102,7 +102,7 @@ export class ListingFilterComponent {
   }
 
   getFilterTabClass(filter: ListingFilter): string {
-    const baseClass = 'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200';
+    const baseClass = 'flex-1 py-2 sm:py-3 px-3 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-all duration-200';
     if (this.activeFilter === filter) {
       return `${baseClass} bg-white text-orange-700 shadow-sm`;
     }

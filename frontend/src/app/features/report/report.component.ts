@@ -21,16 +21,16 @@ import { firstValueFrom } from 'rxjs';
     ImageUploadComponent
   ],
   template: `
-    <div class="min-h-screen bg-orange-50 py-8">
-      <div class="w-full max-w-none px-4">
+    <div class="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
+      <div class="container-responsive py-6 sm:py-8 lg:py-12">
         <!-- Header -->
-        <div class="mb-8 text-center">
+        <div class="text-center mb-6 sm:mb-8 lg:mb-12">
           <button
             (click)="goBack()"
-            class="mb-6 inline-flex items-center px-4 py-2 text-orange-700 hover:text-orange-800 hover:bg-orange-100 rounded-lg transition-colors"
+            class="mb-4 sm:mb-6 inline-flex items-center px-3 sm:px-4 py-2 text-orange-700 hover:text-orange-800 hover:bg-orange-100 rounded-lg transition-colors text-sm sm:text-base"
           >
             <svg
-              class="w-4 h-4 mr-2"
+              class="w-4 h-4 sm:w-5 sm:h-5 mr-2"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -45,43 +45,41 @@ import { firstValueFrom } from 'rxjs';
             Back
           </button>
 
-          <h1 class="text-4xl font-bold text-orange-900 mb-4">
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-orange-900 mb-3 sm:mb-4">
             {{ uiText.getPageTitle(itemType) }}
           </h1>
-          <p class="text-lg text-orange-700 max-w-2xl mx-auto">
+          <p class="text-sm sm:text-base lg:text-lg text-orange-700 max-w-2xl mx-auto leading-relaxed">
             {{ uiText.getPageDescription(itemType) }}
           </p>
         </div>
 
         <!-- Main Form Container -->
-        <div class="w-full flex justify-center">
-          <div class="w-full max-w-4xl" style="width: 70%;">
-            <div class="bg-white rounded-lg shadow-lg border border-orange-200">
+        <div class="flex justify-center">
+          <div class="w-full max-w-2xl lg:max-w-4xl">
+            <div class="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-orange-200 overflow-hidden">
               <!-- Form Header -->
-              <div
-                class="bg-orange-100 px-8 py-6 border-b border-orange-200 rounded-t-lg"
-              >
-                <h2 class="text-2xl font-semibold text-orange-900">
+              <div class="bg-gradient-to-r from-orange-100 to-orange-200 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 border-b border-orange-200">
+                <h2 class="text-xl sm:text-2xl font-semibold text-orange-900">
                   {{ uiText.getFormTitle(itemType) }}
                 </h2>
-                <p class="text-orange-700 mt-2">
+                <p class="text-sm sm:text-base text-orange-700 mt-2">
                   {{ uiText.getFormDescription(itemType) }}
                 </p>
               </div>
 
               <!-- Form Content -->
-              <div class="p-8">
+              <div class="p-4 sm:p-6 lg:p-8">
                 <form
                   [formGroup]="itemForm"
                   (ngSubmit)="onSubmitForm()"
-                  class="space-y-6"
+                  class="space-y-4 sm:space-y-6"
                 >
                   <!-- Title and Category Row -->
-                  <div class="grid gap-6 md:grid-cols-2">
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                     <div class="space-y-2">
                       <label
                         for="title"
-                        class="block text-sm font-medium text-orange-800"
+                        class="block text-sm sm:text-base font-medium text-orange-800"
                       >
                         Item Title *
                       </label>
@@ -90,56 +88,49 @@ import { firstValueFrom } from 'rxjs';
                         type="text"
                         formControlName="title"
                         [placeholder]="itemType === 'lost' ? 'What did you lose?' : 'What did you find?'"
-                        class="w-full px-4 py-3 border rounded-lg bg-white text-orange-900 placeholder-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                        class="input-responsive w-full focus:ring-orange-500 focus:border-orange-500"
                         [class.border-red-400]="isFieldInvalid('title')"
                         [class.border-orange-200]="!isFieldInvalid('title')"
                       />
                       <div
                         *ngIf="isFieldInvalid('title')"
-                        class="text-sm text-red-600"
+                        class="text-sm text-red-600 flex items-start gap-1"
                       >
-                        <span *ngIf="getFieldError('title', 'required')">
-                          Item title is required
-                        </span>
-                        <span *ngIf="getFieldError('title', 'minlength')">
-                          Title must be at least 3 characters
-                        </span>
+                        <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.888-.833-2.658 0L3.156 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                        <span>Please enter a title for your item</span>
                       </div>
                     </div>
 
                     <div class="space-y-2">
                       <label
                         for="category"
-                        class="block text-sm font-medium text-orange-800"
+                        class="block text-sm sm:text-base font-medium text-orange-800"
                       >
                         Category *
                       </label>
                       <select
                         id="category"
                         formControlName="category"
-                        class="w-full px-4 py-3 border rounded-lg bg-white text-orange-900 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                        class="input-responsive w-full focus:ring-orange-500 focus:border-orange-500"
                         [class.border-red-400]="isFieldInvalid('category')"
                         [class.border-orange-200]="!isFieldInvalid('category')"
                       >
                         <option value="">Select a category</option>
-                        <option value="electronics">📱 Electronics</option>
-                        <option value="clothing">👕 Clothing</option>
-                        <option value="accessories">👜 Accessories</option>
-                        <option value="documents">📄 Documents</option>
-                        <option value="keys">🔑 Keys</option>
-                        <option value="jewelry">💍 Jewelry</option>
-                        <option value="bags">🎒 Bags & Wallets</option>
-                        <option value="sports">⚽ Sports Equipment</option>
-                        <option value="books">📚 Books</option>
-                        <option value="tools">🔧 Tools</option>
-                        <option value="toys">🧸 Toys</option>
-                        <option value="other">❓ Other</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="personal">Personal Items</option>
+                        <option value="documents">Documents</option>
+                        <option value="other">Other</option>
                       </select>
                       <div
                         *ngIf="isFieldInvalid('category')"
-                        class="text-sm text-red-600"
+                        class="text-sm text-red-600 flex items-start gap-1"
                       >
-                        Please select a category
+                        <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.888-.833-2.658 0L3.156 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                        <span>Please select a category</span>
                       </div>
                     </div>
                   </div>
@@ -148,94 +139,88 @@ import { firstValueFrom } from 'rxjs';
                   <div class="space-y-2">
                     <label
                       for="description"
-                      class="block text-sm font-medium text-orange-800"
+                      class="block text-sm sm:text-base font-medium text-orange-800"
                     >
                       Description *
                     </label>
                     <textarea
                       id="description"
                       formControlName="description"
-                      [placeholder]="getDescriptionPlaceholder()"
                       rows="4"
-                      class="w-full px-4 py-3 border rounded-lg bg-white text-orange-900 placeholder-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-vertical"
+                      placeholder="Provide detailed description of the item..."
+                      class="textarea-responsive w-full focus:ring-orange-500 focus:border-orange-500"
                       [class.border-red-400]="isFieldInvalid('description')"
                       [class.border-orange-200]="!isFieldInvalid('description')"
                     ></textarea>
                     <div
                       *ngIf="isFieldInvalid('description')"
-                      class="text-sm text-red-600"
+                      class="text-sm text-red-600 flex items-start gap-1"
                     >
-                      <span *ngIf="getFieldError('description', 'required')">
-                        Description is required
-                      </span>
-                      <span *ngIf="getFieldError('description', 'minlength')">
-                        Description must be at least 10 characters
-                      </span>
+                      <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.888-.833-2.658 0L3.156 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                      <span>Please provide a description</span>
                     </div>
                   </div>
 
-                  <!-- Image Upload -->
-                  <app-image-upload
-                    [selectedImage]="selectedImage"
-                    [uploadedImageUrl]="uploadedImageUrl"
-                    [isUploading]="isUploading()"
-                    (imageSelected)="onImageSelected($event)"
-                    (imageRemoved)="removeImage()"
-                    (uploadedImageRemoved)="removeUploadedImage()"
-                  ></app-image-upload>
-
                   <!-- Location and Date Row -->
-                  <div class="grid gap-6 md:grid-cols-2">
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                     <div class="space-y-2">
                       <label
                         for="location"
-                        class="block text-sm font-medium text-orange-800"
+                        class="block text-sm sm:text-base font-medium text-orange-800"
                       >
-                        {{ uiText.getLocationLabel(itemType) }} *
+                        Location *
                       </label>
-                      <input
+                      <select
                         id="location"
-                        type="text"
                         formControlName="location"
-                        [placeholder]="uiText.getLocationPlaceholder(itemType)"
-                        class="w-full px-4 py-3 border rounded-lg bg-white text-orange-900 placeholder-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                        class="input-responsive w-full focus:ring-orange-500 focus:border-orange-500"
                         [class.border-red-400]="isFieldInvalid('location')"
                         [class.border-orange-200]="!isFieldInvalid('location')"
-                      />
+                      >
+                        <option value="">Select location</option>
+                        <option value="downtown">Downtown</option>
+                        <option value="coffee shop">Coffee Shop</option>
+                        <option value="central park">Central Park</option>
+                        <option value="bus station">Bus Station</option>
+                        <option value="library">Library</option>
+                        <option value="park">Park</option>
+                      </select>
                       <div
                         *ngIf="isFieldInvalid('location')"
-                        class="text-sm text-red-600"
+                        class="text-sm text-red-600 flex items-start gap-1"
                       >
-                        <span *ngIf="getFieldError('location', 'required')">
-                          Location is required
-                        </span>
-                        <span *ngIf="getFieldError('location', 'minlength')">
-                          Location must be at least 3 characters
-                        </span>
+                        <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.888-.833-2.658 0L3.156 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                        <span>Please select a location</span>
                       </div>
                     </div>
 
                     <div class="space-y-2">
                       <label
                         for="date"
-                        class="block text-sm font-medium text-orange-800"
+                        class="block text-sm sm:text-base font-medium text-orange-800"
                       >
-                        {{ uiText.getDateLabel(itemType) }} *
+                        Date *
                       </label>
                       <input
                         id="date"
                         type="date"
                         formControlName="date"
-                        [max]="maxDate"
-                        class="w-full px-4 py-3 border rounded-lg bg-white text-orange-900 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                        class="input-responsive w-full focus:ring-orange-500 focus:border-orange-500"
                         [class.border-red-400]="isFieldInvalid('date')"
                         [class.border-orange-200]="!isFieldInvalid('date')"
                       />
                       <div
                         *ngIf="isFieldInvalid('date')"
-                        class="text-sm text-red-600"
+                        class="text-sm text-red-600 flex items-start gap-1"
                       >
-                        Date is required
+                        <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.888-.833-2.658 0L3.156 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                        <span>Please select a date</span>
                       </div>
                     </div>
                   </div>
@@ -244,84 +229,77 @@ import { firstValueFrom } from 'rxjs';
                   <div class="space-y-2">
                     <label
                       for="contactInfo"
-                      class="block text-sm font-medium text-orange-800"
+                      class="block text-sm sm:text-base font-medium text-orange-800"
                     >
                       Contact Information *
                     </label>
-                    <input
+                    <textarea
                       id="contactInfo"
-                      type="text"
                       formControlName="contactInfo"
-                      placeholder="Your email address or phone number"
-                      class="w-full px-4 py-3 border rounded-lg bg-white text-orange-900 placeholder-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                      rows="3"
+                      placeholder="Enter your contact information (email, phone, etc.)"
+                      class="textarea-responsive w-full focus:ring-orange-500 focus:border-orange-500"
                       [class.border-red-400]="isFieldInvalid('contactInfo')"
                       [class.border-orange-200]="!isFieldInvalid('contactInfo')"
-                    />
+                    ></textarea>
                     <div
                       *ngIf="isFieldInvalid('contactInfo')"
-                      class="text-sm text-red-600"
+                      class="text-sm text-red-600 flex items-start gap-1"
                     >
-                      <span *ngIf="getFieldError('contactInfo', 'required')">
-                        Contact information is required
-                      </span>
-                      <span *ngIf="getFieldError('contactInfo', 'invalidContact')">
-                        Please enter a valid email address or phone number
-                      </span>
+                      <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.888-.833-2.658 0L3.156 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                      <span>Please provide contact information</span>
                     </div>
+                    <p class="text-xs sm:text-sm text-gray-500">
+                      Include your email, phone number, or preferred contact method
+                    </p>
+                  </div>
+
+                  <!-- Image Upload -->
+                  <div class="space-y-2">
+                    <label class="block text-sm sm:text-base font-medium text-orange-800">
+                      Item Image (Optional)
+                    </label>
+                                         <app-image-upload
+                       [selectedImage]="selectedImages[0] || null"
+                       [uploadedImageUrl]="uploadedImageUrl"
+                       [isUploading]="isUploading()"
+                       (imageSelected)="onImageSelected($event)"
+                       (imageRemoved)="onImageRemoved()"
+                       (uploadedImageRemoved)="onUploadedImageRemoved()"
+                     />
+                    <p class="text-xs sm:text-sm text-gray-500">
+                      Upload a photo to help identify the item. Maximum 5 images, 5MB each.
+                    </p>
                   </div>
 
                   <!-- Submit Button -->
-                  <div class="pt-6">
+                  <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6">
                     <button
                       type="submit"
-                      [disabled]="itemForm.invalid || isSubmitting() || isUploading()"
-                      class="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-orange-300 text-white font-medium py-4 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl disabled:cursor-not-allowed"
+                      [disabled]="itemForm.invalid || isSubmitting()"
+                      class="flex-1 btn-responsive-lg bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      <span
-                        *ngIf="!isSubmitting()"
-                        class="flex items-center justify-center"
-                      >
-                        <svg
-                          class="w-5 h-5 mr-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M12 4v16m8-8H4"
-                          />
-                        </svg>
-                        {{ uiText.getSubmitButtonText(itemType) }}
-                      </span>
-                      <span
-                        *ngIf="isSubmitting()"
-                        class="flex items-center justify-center"
-                      >
-                        <svg
-                          class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            class="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            stroke-width="4"
-                          ></circle>
-                          <path
-                            class="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        Submitting...
-                      </span>
+                      <svg *ngIf="isSubmitting()" class="w-4 h-4 sm:w-5 sm:h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <svg *ngIf="!isSubmitting()" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      <span>{{ isSubmitting() ? 'Submitting...' : 'Submit Report' }}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      (click)="goBack()"
+                      class="flex-1 btn-responsive-lg border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold transition-colors flex items-center justify-center gap-2"
+                    >
+                      <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Cancel
                     </button>
                   </div>
                 </form>
@@ -331,9 +309,16 @@ import { firstValueFrom } from 'rxjs';
         </div>
       </div>
     </div>
-  `
+  `,
 })
-export class ReportPageComponent implements OnInit {
+export class ReportComponent implements OnInit {
+  itemType: ItemType = 'lost';
+  itemForm: FormGroup;
+  selectedImages: ImageFile[] = [];
+  uploadedImageUrl = '';
+  isSubmitting = signal(false);
+  isUploading = signal(false);
+
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -343,235 +328,109 @@ export class ReportPageComponent implements OnInit {
   private cloudinaryService = inject(CloudinaryService);
   protected uiText = inject(UiTextService);
 
-  itemForm!: FormGroup;
-  maxDate = new Date().toISOString().split('T')[0];
-  isSubmitting = signal(false);
-  isUploading = signal(false);
-  itemType: ItemType = 'lost';
-  selectedImage: ImageFile | null = null;
-  uploadedImageUrl: string = '';
-  currentUserId: string | null = null;
-
-  ngOnInit(): void {
-    this.initializeUserId();
-    this.initializeItemType();
-    this.initializeForm();
-  }
-
-  private initializeUserId(): void {
-    try {
-      const user = this.authService.getUser();
-      this.currentUserId = user?._id || user?.id || null;
-      
-      if (!this.currentUserId) {
-        this.handleAuthError();
-      }
-    } catch (error) {
-      this.handleAuthError();
-    }
-  }
-
-  private handleAuthError(): void {
-    console.warn('No user ID found, redirecting to login');
-    this.toastr.error('Please log in to continue', 'Authentication Required');
-    this.router.navigate(['/login']);
-  }
-
-  private initializeItemType(): void {
-    this.route.params.subscribe((params) => {
-      const type = params['type'] as ItemType;
-      if (type && ['lost', 'found'].includes(type)) {
-        this.itemType = type;
-        console.log('Item type set to:', type);
-      } else {
-        this.router.navigate(['/']);
-      }
-    });
-  }
-
-  private initializeForm(): void {
+  constructor() {
     this.itemForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
       category: ['', Validators.required],
-      location: ['', [Validators.required, Validators.minLength(3)]],
+      location: ['', Validators.required],
       date: ['', Validators.required],
-      contactInfo: ['', [Validators.required, contactInfoValidator]],
+      contactInfo: ['', [Validators.required, contactInfoValidator]]
     });
   }
 
-  // Form Validation Helpers
+  ngOnInit() {
+    this.route.params.subscribe(params => {
+      this.itemType = params['type'] as ItemType;
+      if (!['lost', 'found'].includes(this.itemType)) {
+        this.router.navigate(['/dashboard']);
+      }
+    });
+  }
+
   isFieldInvalid(fieldName: string): boolean {
     const field = this.itemForm.get(fieldName);
-    return field ? field.invalid && field.touched : false;
+    return !!(field && field.invalid && field.touched);
   }
 
-  getFieldError(fieldName: string, errorType: string): boolean {
-    const field = this.itemForm.get(fieldName);
-    return field ? field.errors?.[errorType] : false;
+  onImagesSelected(images: ImageFile[]) {
+    this.selectedImages = images;
   }
 
-  // Image Handling
-  async onImageSelected(imageFile: ImageFile): Promise<void> {
-    this.selectedImage = imageFile;
-    await this.uploadImage();
+  onImagesRemoved(images: ImageFile[]) {
+    this.selectedImages = images;
   }
 
-  private async uploadImage(): Promise<void> {
-    if (!this.selectedImage) return;
-
-    this.isUploading.set(true);
-    
-    try {
-      const response = await firstValueFrom(
-        this.cloudinaryService.uploadImage(this.selectedImage.file)
-      );
-      
-      this.uploadedImageUrl = response.secure_url;
-      this.toastr.success('Image uploaded successfully!', 'Success');
-      
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      this.toastr.error('Failed to upload image. Please try again.', 'Upload Error');
-      this.removeImage();
-    } finally {
-      this.isUploading.set(false);
-    }
+  onImageSelected(image: ImageFile) {
+    this.selectedImages = [image];
   }
 
-  removeImage(): void {
-    this.selectedImage = null;
+  onImageRemoved() {
+    this.selectedImages = [];
+  }
+
+  onUploadedImageRemoved() {
     this.uploadedImageUrl = '';
   }
 
-  removeUploadedImage(): void {
-    this.uploadedImageUrl = '';
-    this.selectedImage = null;
-  }
-
-  // Helper Methods
-  getDescriptionPlaceholder(): string {
-    return this.itemType === 'lost'
-      ? 'Describe your item in detail (color, brand, size, distinctive features, etc.)'
-      : 'Describe the found item in detail (color, brand, size, distinctive features, etc.)';
-  }
-
-  goBack(): void {
-    this.router.navigate(['/']);
-  }
-
-  // Form Submission
-  async onSubmitForm(): Promise<void> {
-    if (this.itemForm.valid && this.currentUserId) {
-      this.isSubmitting.set(true);
-
-      try {
-        const formData: ItemFormData = {
-          type: this.itemType,
-          ...this.itemForm.value,
-          userId: this.currentUserId,
-          imageUrl: this.uploadedImageUrl || undefined,
-        };
-
-        await this.handleFormSubmit(formData);
-      } catch (error) {
-        console.error('Error submitting form:', error);
-      } finally {
-        this.isSubmitting.set(false);
-      }
-    } else {
-      this.handleInvalidForm();
-    }
-  }
-
-  private async handleFormSubmit(data: ItemFormData): Promise<void> {
-    try {
-      const loadingToast = this.toastr.info(
-        `Submitting your ${this.itemType} item report...`,
-        'Processing',
-        {
-          timeOut: 0,
-          extendedTimeOut: 0,
-          closeButton: true,
-          progressBar: true,
-        }
-      );
-
-      const response = await firstValueFrom(
-        this.itemService.submitItem(data as any)
-      );
-
-      this.toastr.clear();
-
-      if (response?.success) {
-        this.handleSuccessfulSubmission();
-      } else {
-        throw new Error(response?.message || 'Unknown error occurred');
-      }
-    } catch (error: any) {
-      this.handleSubmissionError(error);
-    }
-  }
-
-  private handleSuccessfulSubmission(): void {
-    const successMessage = this.itemType === 'lost'
-      ? "Your lost item has been reported and added to our database. We'll notify you if someone finds it!"
-      : "Your found item has been reported and added to our database. We'll help connect you with the owner!";
-
-    this.toastr.success(successMessage, 'Item Reported Successfully!', {
-      timeOut: 5000,
-      closeButton: true,
-      progressBar: true,
-      positionClass: 'toast-top-right',
-    });
-
-    this.resetForm();
-    
-    setTimeout(() => {
-      this.router.navigate(['/dashboard']);
-    }, 2000);
-  }
-
-  private handleSubmissionError(error: any): void {
-    this.toastr.clear();
-
-    let errorMessage = `Failed to submit your ${this.itemType} item report. Please try again.`;
-
-    if (error?.status === 401) {
-      errorMessage = 'Authentication failed. Please log in again.';
-      this.router.navigate(['/login']);
-    } else if (error?.status === 403) {
-      errorMessage = 'You do not have permission to perform this action.';
-    } else if (error?.status === 400) {
-      errorMessage = 'Invalid form data. Please check your inputs and try again.';
-    } else if (error?.status >= 500) {
-      errorMessage = 'Server error. Please try again later.';
-    }
-
-    this.toastr.error(errorMessage, 'Submission Failed', {
-      timeOut: 7000,
-      closeButton: true,
-      progressBar: true,
-      positionClass: 'toast-top-right',
-    });
-
-    throw error;
-  }
-
-  private handleInvalidForm(): void {
-    if (!this.currentUserId) {
-      this.toastr.error('User authentication required. Please log in again.', 'Authentication Error');
-      this.router.navigate(['/login']);
+  async onSubmitForm() {
+    if (this.itemForm.invalid) {
+      this.markFormGroupTouched();
       return;
     }
 
-    Object.keys(this.itemForm.controls).forEach((key) => {
-      this.itemForm.get(key)?.markAsTouched();
+    this.isSubmitting.set(true);
+
+    try {
+      // Upload images first
+      const imageUrls: string[] = [];
+      for (const image of this.selectedImages) {
+        const result = await firstValueFrom(
+          this.cloudinaryService.uploadImage(image.file)
+        );
+        imageUrls.push(result.secure_url);
+      }
+
+      // Prepare form data
+      const formData: any = {
+        ...this.itemForm.value,
+        type: this.itemType,
+        images: imageUrls
+      };
+
+      // Submit to API
+      const response = await firstValueFrom(
+        this.itemService.submitItem(formData)
+      );
+
+      if (response.success) {
+        this.toastr.success(
+          `${this.itemType === 'lost' ? 'Lost' : 'Found'} item reported successfully!`,
+          'Success'
+        );
+        this.router.navigate(['/dashboard']);
+      } else {
+        throw new Error(response.message || 'Failed to submit report');
+      }
+    } catch (error: any) {
+      console.error('Submit error:', error);
+      this.toastr.error(
+        error.message || 'Failed to submit report. Please try again.',
+        'Error'
+      );
+    } finally {
+      this.isSubmitting.set(false);
+    }
+  }
+
+  private markFormGroupTouched() {
+    Object.keys(this.itemForm.controls).forEach(key => {
+      const control = this.itemForm.get(key);
+      control?.markAsTouched();
     });
   }
 
-  private resetForm(): void {
-    this.itemForm.reset();
-    this.removeUploadedImage();
+  goBack() {
+    this.router.navigate(['/dashboard']);
   }
 }

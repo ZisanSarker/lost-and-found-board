@@ -8,13 +8,20 @@ import { FooterComponent } from './footer/footer.component';
   standalone: true,
   imports: [RouterOutlet, HeaderComponent, FooterComponent],
   template: `
-    <div class="sticky top-0 z-50 bg-white">
-      <app-header></app-header>
+    <div class="flex flex-col min-h-screen">
+      <!-- Header -->
+      <div class="sticky top-0 z-50 bg-white shadow-sm">
+        <app-header></app-header>
+      </div>
+      
+      <!-- Main Content -->
+      <main class="flex-1">
+        <router-outlet></router-outlet>
+      </main>
+      
+      <!-- Footer -->
+      <app-footer></app-footer>
     </div>
-    <main class="min-h-screen">
-      <router-outlet></router-outlet>
-    </main>
-    <app-footer></app-footer>
   `,
 })
 export class LayoutComponent {}
