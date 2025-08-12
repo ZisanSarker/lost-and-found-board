@@ -6,10 +6,10 @@ import { Component } from '@angular/core';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
+    <div class="min-h-screen bg-gray-50">
       <!-- Header Section -->
       <div class="bg-orange-600 text-white py-12">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="container-responsive">
           <div class="text-center">
             <h1 class="text-4xl font-bold mb-4">Help & Support</h1>
             <p class="text-xl text-orange-100">We're here to help you with Lost & Found</p>
@@ -18,7 +18,8 @@ import { Component } from '@angular/core';
       </div>
 
       <!-- Main Content -->
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="container-responsive py-12">
+        <div class="max-w-content-lg mx-auto">
         
         <!-- Contact Information -->
         <div class="mb-12">

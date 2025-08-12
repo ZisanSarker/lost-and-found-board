@@ -8,7 +8,7 @@ import { FooterComponent } from './footer/footer.component';
   standalone: true,
   imports: [RouterOutlet, HeaderComponent, FooterComponent],
   template: `
-    <div class="flex flex-col min-h-screen">
+    <div class="flex flex-col min-h-screen max-w-[1920px] mx-auto bg-white">
       <!-- Header -->
       <div class="sticky top-0 z-50 bg-white shadow-sm">
         <app-header></app-header>

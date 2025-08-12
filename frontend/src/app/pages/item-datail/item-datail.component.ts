@@ -39,7 +39,7 @@ export interface User {
   imports: [CommonModule, RouterModule, HttpClientModule],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
-      <div class="container-responsive py-6 sm:py-8 lg:py-12">
+      <div class="container-responsive-md py-6 sm:py-8 lg:py-12">
         <!-- Back Button -->
         <div class="mb-6 sm:mb-8">
           <button

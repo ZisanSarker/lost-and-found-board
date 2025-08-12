@@ -7,8 +7,8 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="min-h-screen bg-orange-50 py-12 px-4">
-      <div class="max-w-4xl mx-auto">
+    <div class="min-h-screen bg-orange-50 py-12">
+      <div class="container-responsive-md">
         <!-- Header -->
         <div class="text-center mb-12">
           <h1 class="text-4xl font-bold text-orange-800 mb-4">Contact Us</h1>

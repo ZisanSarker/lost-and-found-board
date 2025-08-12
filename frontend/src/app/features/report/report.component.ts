@@ -22,7 +22,7 @@ import { firstValueFrom } from 'rxjs';
   ],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
-      <div class="container-responsive py-6 sm:py-8 lg:py-12">
+      <div class="container-responsive-md py-6 sm:py-8 lg:py-12">
         <!-- Header -->
         <div class="text-center mb-6 sm:mb-8 lg:mb-12">
           <button

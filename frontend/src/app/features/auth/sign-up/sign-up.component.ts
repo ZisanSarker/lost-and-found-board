@@ -30,7 +30,7 @@ const baseUrl = environment.apiBaseUrl;
   ],
   template: `
     <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100 px-4 sm:px-6 lg:px-8">
-      <div class="w-full max-w-sm sm:max-w-md lg:max-w-lg">
+      <div class="w-full max-w-form">
         <!-- Back to Home Link -->
         <div class="text-center mb-6 sm:mb-8">
           <a 

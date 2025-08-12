@@ -23,16 +23,16 @@ import { NgIf } from '@angular/common';
       <app-hero></app-hero>
 
       <ng-container *ngIf="isLoggedIn()">
-        <div class="section-padding-sm">
+        <div class="container-responsive section-padding-sm">
           <app-all-posts></app-all-posts>
         </div>
       </ng-container>
 
-      <div class="section-padding-sm">
+      <div class="container-responsive section-padding-sm">
         <app-how-it-works></app-how-it-works>
       </div>
       
-      <div class="section-padding-sm">
+      <div class="container-responsive section-padding-sm">
         <app-cta-section></app-cta-section>
       </div>
     </div>

@@ -33,7 +33,7 @@ import { DashboardHeaderComponent } from '../../shared/components/dashboard-head
   ],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
-      <div class="container-responsive py-6 sm:py-8 lg:py-12">
+      <div class="container-responsive-lg py-6 sm:py-8 lg:py-12">
         <!-- Page Header -->
         <app-dashboard-header
           (reportLostItem)="onReportLostItem()"

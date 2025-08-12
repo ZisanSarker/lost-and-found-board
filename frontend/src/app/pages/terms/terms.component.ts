@@ -5,8 +5,8 @@ import { Component } from '@angular/core';
   standalone: true,
   template: `
     <div class="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
-      <div class="container-responsive py-6 sm:py-8 lg:py-12">
-        <div class="max-w-4xl mx-auto bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 space-y-6 sm:space-y-8 border border-orange-100 hover:border-orange-200 transform hover:-translate-y-1">
+      <div class="container-responsive-md py-6 sm:py-8 lg:py-12">
+        <div class="max-w-content bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 space-y-6 sm:space-y-8 border border-orange-100 hover:border-orange-200 transform hover:-translate-y-1">
           <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-center text-orange-600 hover:text-orange-700 transition-colors duration-200">Terms & Conditions</h1>
 
           <div class="space-y-4 p-3 sm:p-4 rounded-lg hover:bg-orange-50 transition-all duration-200 hover:shadow-sm">

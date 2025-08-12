@@ -30,7 +30,7 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
   ],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
-      <div class="container-responsive py-6 sm:py-8 lg:py-12">
+      <div class="container-responsive-md py-6 sm:py-8 lg:py-12">
         <!-- Back Navigation -->
         <div class="mb-6 sm:mb-8">
           <button

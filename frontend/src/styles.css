@@ -38,10 +38,25 @@
     @apply text-sm sm:text-base leading-relaxed;
   }
   
-  /* Responsive spacing */
+  /* Responsive spacing with max-width constraints */
   .container-responsive {
-    @apply w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16;
-    max-width: 100%;
+    @apply w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mx-auto;
+    max-width: 1440px; /* Maximum width for very large screens */
+  }
+  
+  .container-responsive-sm {
+    @apply w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mx-auto;
+    max-width: 1200px; /* Smaller max-width for content-focused pages */
+  }
+  
+  .container-responsive-md {
+    @apply w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mx-auto;
+    max-width: 1024px; /* Medium max-width for forms and detailed content */
+  }
+  
+  .container-responsive-lg {
+    @apply w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mx-auto;
+    max-width: 1600px; /* Larger max-width for dashboard and wide layouts */
   }
   
   .section-padding {
@@ -126,6 +141,52 @@
   
   .btn-responsive-lg {
     @apply px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-4 text-base sm:text-lg font-semibold rounded-lg transition-all duration-200;
+  }
+  
+  /* Max-width utilities for content control */
+  .max-w-content {
+    @apply mx-auto;
+    max-width: 800px; /* Optimal reading width for text content */
+  }
+  
+  .max-w-content-sm {
+    @apply mx-auto;
+    max-width: 600px; /* Compact content width */
+  }
+  
+  .max-w-content-lg {
+    @apply mx-auto;
+    max-width: 1000px; /* Wide content width */
+  }
+  
+  .max-w-form {
+    @apply mx-auto;
+    max-width: 600px; /* Optimal form width */
+  }
+  
+  .max-w-form-lg {
+    @apply mx-auto;
+    max-width: 800px; /* Wide form width */
+  }
+  
+  .max-w-card {
+    @apply mx-auto;
+    max-width: 400px; /* Card content width */
+  }
+  
+  .max-w-card-lg {
+    @apply mx-auto;
+    max-width: 600px; /* Large card width */
+  }
+  
+  .max-w-dashboard {
+    @apply mx-auto;
+    max-width: 1400px; /* Dashboard layout width */
+  }
+  
+  .max-w-hero {
+    @apply mx-auto;
+    max-width: 1200px; /* Hero section width */
   }
   
   /* Responsive cards */
