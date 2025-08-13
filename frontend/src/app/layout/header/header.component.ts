@@ -15,7 +15,12 @@ import { Observable } from 'rxjs';
         <div class="flex-responsive-between py-3 sm:py-4">
           <!-- Logo -->
           <div class="text-xl sm:text-2xl md:text-3xl font-bold text-orange-600 cursor-pointer transition-colors hover:text-orange-700" 
-               (click)="navigateHome()">
+               (click)="navigateHome()"
+               (keyup.enter)="navigateHome()"
+               (keyup.space)="navigateHome()"
+               tabindex="0"
+               role="button"
+               aria-label="Navigate to home page">
             Lost & Found
           </div>
           
@@ -38,7 +43,10 @@ import { Observable } from 'rxjs';
               <div class="hidden md:block relative">
                 <button 
                   (click)="toggleDropdown()"
+                  (keyup.enter)="toggleDropdown()"
+                  (keyup.space)="toggleDropdown()"
                   class="flex items-center gap-2 p-2 rounded-full hover:bg-orange-200 transition-colors duration-200"
+                  aria-label="Toggle user menu"
                 >
                   <!-- User Avatar -->
                   <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 border-orange-300">
@@ -102,7 +110,10 @@ import { Observable } from 'rxjs';
                   
                   <button 
                     (click)="showLogoutConfirmation()"
+                    (keyup.enter)="showLogoutConfirmation()"
+                    (keyup.space)="showLogoutConfirmation()"
                     class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    aria-label="Logout"
                   >
                     <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -42,7 +42,7 @@ import { Router } from '@angular/router';
   `
 })
 export class DashboardHeaderComponent {
-  constructor(private router: Router) {}
+  private router = inject(Router);
 
   navigateTo(type: 'lost' | 'found') {
     this.router.navigate([`/repost/${type}`]);

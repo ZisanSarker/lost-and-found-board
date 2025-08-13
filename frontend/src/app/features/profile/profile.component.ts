@@ -115,6 +115,11 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
                   *ngIf="isEditing()"
                   class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
                   (click)="fileInput.click()"
+                  (keyup.enter)="fileInput.click()"
+                  (keyup.space)="fileInput.click()"
+                  tabindex="0"
+                  role="button"
+                  aria-label="Change profile photo"
                 >
                   <div *ngIf="!isUploadingAvatar()" class="text-center">
                     <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -134,7 +139,6 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
                 type="file"
                 accept="image/*"
                 class="hidden"
-                                 (change)="onAvatarSelected($event)"
               />
             </ng-container>
           </app-profile-header>
@@ -239,7 +243,6 @@ export class ProfileComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Error loading profile:', err);
         this.handleError(err);
         this.loading.set(false);
       }
@@ -278,28 +281,7 @@ export class ProfileComponent implements OnInit {
            this.error().includes('session expired');
   }
 
-  async onAvatarSelected(event: any): Promise<void> {
-    const file = event.target.files[0];
-    if (!file) return;
 
-    if (!this.cloudinaryService.isValidImageFile(file)) {
-      this.toastr.error(
-        'Please select a valid image file (JPEG, PNG, GIF) under 5MB',
-        'Invalid File'
-      );
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      this.selectedAvatar = {
-        file: file,
-        preview: e.target.result,
-      };
-      this.uploadAvatar();
-    };
-    reader.readAsDataURL(file);
-  }
 
   private async uploadAvatar(): Promise<void> {
     if (!this.selectedAvatar) return;
@@ -313,8 +295,7 @@ export class ProfileComponent implements OnInit {
 
       this.editForm.avatar = response.secure_url;
       this.toastr.success('Avatar uploaded successfully!', 'Success');
-    } catch (error) {
-      console.error('Error uploading avatar:', error);
+    } catch {
       this.toastr.error(
         'Failed to upload avatar. Please try again.',
         'Upload Error'
@@ -378,7 +359,6 @@ export class ProfileComponent implements OnInit {
         this.toastr.success('Profile updated successfully!');
       },
       error: (err) => {
-        console.error('Error updating profile:', err);
         this.handleError(err);
         this.saving.set(false);
       }
@@ -400,7 +380,6 @@ export class ProfileComponent implements OnInit {
         }, 2000);
       },
       error: (err) => {
-        console.error('Error deleting account:', err);
         this.handleError(err);
       }
     });
@@ -415,7 +394,7 @@ export class ProfileComponent implements OnInit {
     this.toastr.success('Logged out successfully');
   }
 
-  private handleError(error: any): void {
+  private handleError(error: { status?: number; message?: string }): void {
     if (error.status === 401) {
       this.error.set('You are not authenticated. Please log in to continue.');
       this.handleAuthError();

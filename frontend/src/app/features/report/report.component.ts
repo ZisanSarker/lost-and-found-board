@@ -8,7 +8,7 @@ import { ItemService } from '../../core/services/item.service';
 import { CloudinaryService } from '../../core/services/cloudinary.service';
 import { UiTextService } from '../../core/services/ui-text.service';
 import { ImageUploadComponent } from './components/image-upload/image-upload.component';
-import { ItemFormData, ItemType, ImageFile, ApiResponse } from './models/item.model';
+import { ItemType, ImageFile } from './models/item.model';
 import { contactInfoValidator } from './utils/validators';
 import { firstValueFrom } from 'rxjs';
 
@@ -258,7 +258,7 @@ import { firstValueFrom } from 'rxjs';
 
                   <!-- Image Upload -->
                   <div class="space-y-2">
-                    <label class="block text-sm sm:text-base font-medium text-orange-800">
+                    <label for="item-image" class="block text-sm sm:text-base font-medium text-orange-800">
                       Item Image (Optional)
                     </label>
                                          <app-image-upload
@@ -392,15 +392,15 @@ export class ReportComponent implements OnInit {
       }
 
       // Prepare form data
-      const formData: any = {
+      const formData = {
         ...this.itemForm.value,
         type: this.itemType,
         images: imageUrls
-      };
+      } as { [key: string]: unknown };
 
       // Submit to API
       const response = await firstValueFrom(
-        this.itemService.submitItem(formData)
+        this.itemService.submitItem(formData as any)
       );
 
       if (response.success) {
@@ -412,12 +412,9 @@ export class ReportComponent implements OnInit {
       } else {
         throw new Error(response.message || 'Failed to submit report');
       }
-    } catch (error: any) {
-      console.error('Submit error:', error);
-      this.toastr.error(
-        error.message || 'Failed to submit report. Please try again.',
-        'Error'
-      );
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to submit report. Please try again.';
+      this.toastr.error(errorMessage, 'Error');
     } finally {
       this.isSubmitting.set(false);
     }

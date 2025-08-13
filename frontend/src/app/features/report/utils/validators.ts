@@ -5,7 +5,7 @@ export function contactInfoValidator(control: AbstractControl): ValidationErrors
   if (!value) return { required: true };
   
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const phonePattern = /^[\+]?[\d\s\-\(\)]{10,}$/;
+  const phonePattern = /^[+]?[\d\s\-()]{10,}$/;
   
   if (emailPattern.test(value) || phonePattern.test(value)) {
     return null;

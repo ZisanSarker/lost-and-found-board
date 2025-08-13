@@ -177,7 +177,7 @@ interface Item {
 
               <!-- Contact Preference -->
               <div>
-                <label class="block text-sm sm:text-base font-medium text-gray-700 mb-2">
+                <label for="contact-preference" class="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                   Preferred Contact Method
                 </label>
                 <div class="space-y-2">
@@ -309,7 +309,6 @@ export class ContactComponent implements OnInit {
         this.isLoadingItem = false;
       },
       error: (error) => {
-        console.error('Error loading item:', error);
         this.itemLoadError = error.error?.message || 'Failed to load item';
         this.isLoadingItem = false;
       }
@@ -327,7 +326,7 @@ export class ContactComponent implements OnInit {
       };
 
       this.http.post(`${baseUrl}/api/email/contact`, formData).subscribe({
-        next: (response: any) => {
+        next: (response: { success?: boolean; message?: string }) => {
           if (response.success) {
             this.showSuccess = true;
             this.contactForm.reset();
@@ -337,7 +336,6 @@ export class ContactComponent implements OnInit {
           this.isSubmitting = false;
         },
         error: (error) => {
-          console.error('Error sending message:', error);
           alert(error.error?.message || 'Failed to send message');
           this.isSubmitting = false;
         }

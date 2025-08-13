@@ -164,18 +164,18 @@ export type EmptyStateLayout = 'compact' | 'centered' | 'expanded';
   `
 })
 export class EmptyStateComponent {
-  @Input() title: string = 'No items found';
-  @Input() message: string = 'No items found matching your criteria.';
+  @Input() title = 'No items found';
+  @Input() message = 'No items found matching your criteria.';
   @Input() variant: EmptyStateVariant = 'default';
   @Input() size: EmptyStateSize = 'md';
   @Input() layout: EmptyStateLayout = 'centered';
   
-  @Input() showActionButton: boolean = false;
-  @Input() actionButtonText: string = 'Create New';
+  @Input() showActionButton = false;
+  @Input() actionButtonText = 'Create New';
   @Input() actionButtonIcon?: string;
   
-  @Input() showSecondaryButton: boolean = false;
-  @Input() secondaryButtonText: string = 'Clear Filters';
+  @Input() showSecondaryButton = false;
+  @Input() secondaryButtonText = 'Clear Filters';
   
   @Input() timestamp?: string = '2025-06-04 05:59:47';
   @Input() username?: string = 'ZisanSarker';
@@ -193,9 +193,7 @@ export class EmptyStateComponent {
     return `${baseClass} ${layoutClasses[this.layout]}`;
   }
 
-  get iconWrapperClass(): string {
-    return 'mb-4';
-  }
+  readonly iconWrapperClass = 'mb-4';
 
   get iconClass(): string {
     const sizeClasses = {
@@ -215,14 +213,7 @@ export class EmptyStateComponent {
     return `${sizeClasses[this.size]} ${variantClasses[this.variant]}`;
   }
 
-  get contentClass(): string {
-    const sizeClasses = {
-      sm: 'max-w-xs',
-      md: 'max-w-sm',
-      lg: 'max-w-md'
-    };
-    return `mx-auto ${sizeClasses[this.size]}`;
-  }
+  readonly contentClass = 'mx-auto max-w-sm';
 
   get titleClass(): string {
     const sizeClasses = {
@@ -242,9 +233,7 @@ export class EmptyStateComponent {
     return `text-gray-500 mb-6 ${sizeClasses[this.size]}`;
   }
 
-  get actionsClass(): string {
-    return 'flex justify-center gap-4';
-  }
+  readonly actionsClass = 'flex justify-center gap-4';
 
   get primaryButtonClass(): string {
     const baseClass = 'inline-flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
@@ -275,9 +264,7 @@ export class EmptyStateComponent {
     return `${baseClass} ${sizeClasses[this.size]} bg-gray-200 hover:bg-gray-300 text-gray-700 focus:ring-gray-500 rounded-lg`;
   }
 
-  get extraContentClass(): string {
-    return 'mt-6';
-  }
+  readonly extraContentClass = 'mt-6';
 
   onPrimaryAction(): void {
     this.action.emit();

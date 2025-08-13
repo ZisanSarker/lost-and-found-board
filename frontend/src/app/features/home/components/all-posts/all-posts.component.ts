@@ -27,7 +27,7 @@ import { ItemFilterService } from '../../../../core/services/item-filter.service
 
         <!-- Search Bar -->
         <div class="mb-6 sm:mb-8">
-          <app-search-bar (search)="onSearch($event)"></app-search-bar>
+          <app-search-bar (searchTriggered)="onSearch($event)"></app-search-bar>
         </div>
 
         <!-- Tab Switcher -->
@@ -107,7 +107,7 @@ import { ItemFilterService } from '../../../../core/services/item-filter.service
 export class AllPostsComponent implements OnInit {
   activeTab: ItemType = 'lost';
   isLoading = true;
-  error: string = '';
+  error = '';
 
   searchQuery = '';
   searchCategory = 'all';
@@ -117,14 +117,14 @@ export class AllPostsComponent implements OnInit {
   currentItems: Item[] = [];
 
   // Pagination properties
-  currentPage: number = 1;
-  itemsPerPage: number = 6;
-  totalPages: number = 1;
-  totalCount: number = 0;
+  currentPage = 1;
+  itemsPerPage = 6;
+  totalPages = 1;
+  totalCount = 0;
 
   // Total counts for tabs
-  lostTotalCount: number = 0;
-  foundTotalCount: number = 0;
+  lostTotalCount = 0;
+  foundTotalCount = 0;
 
   // Math utility for template
   Math = Math;
@@ -143,9 +143,8 @@ export class AllPostsComponent implements OnInit {
         this.lostTotalCount = counts.lost;
         this.foundTotalCount = counts.found;
       },
-      error: (err) => {
-        console.error('Failed to load total counts:', err);
-        // Don't show error for total counts, just log it
+      error: () => {
+        // Don't show error for total counts
       }
     });
   }
@@ -167,7 +166,7 @@ export class AllPostsComponent implements OnInit {
     this.loadItemsByType(this.activeTab, 1);
   }
 
-  loadItemsByType(type: ItemType, page: number = 1) {
+  loadItemsByType(type: ItemType, page = 1) {
     this.isLoading = true;
     this.error = '';
 
@@ -189,8 +188,7 @@ export class AllPostsComponent implements OnInit {
         }
         this.isLoading = false;
       },
-      error: (err) => {
-        console.error(`Failed to load ${type} items:`, err);
+      error: () => {
         this.error = `Failed to load ${type} items. Please try again.`;
         this.isLoading = false;
       }

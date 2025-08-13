@@ -7,8 +7,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import {
   DataService,
-  Message,
-  Notification,
 } from '../../shared/services/data.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ProfileSidebarComponent } from '../../shared/components/profile-sidebar/profile-sidebar.component';
@@ -63,7 +61,10 @@ import { MyListingsComponent } from '../my-listings/my-listings.component';
               <h3 class="text-lg font-semibold text-gray-900">Dashboard Menu</h3>
               <button 
                 (click)="closeMobileSidebar()"
+                (keyup.enter)="closeMobileSidebar()"
+                (keyup.space)="closeMobileSidebar()"
                 class="text-gray-500 hover:text-gray-700"
+                tabindex="0"
               >
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -208,12 +209,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // Load dashboard data
     this.subscription.add(
       this.dataService.getDashboardData().subscribe({
-        next: (data) => {
+        next: () => {
           this.isLoading = false;
           // Dashboard data loaded successfully
         },
-        error: (error) => {
-          console.error('Dashboard loading error:', error);
+        error: () => {
           this.errorMessage = 'Failed to load dashboard data. Please try again.';
           this.isLoading = false;
         }

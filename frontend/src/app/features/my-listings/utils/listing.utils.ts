@@ -1,7 +1,7 @@
 import { Listing, ListingFilter } from '../models/listing.model';
 
 export class ListingUtils {
-  static filterListings(listings: Listing[], filter: ListingFilter, searchQuery: string = ''): Listing[] {
+  static filterListings(listings: Listing[], filter: ListingFilter, searchQuery = ''): Listing[] {
     let filtered = [...listings];
 
     // Apply search filter
@@ -24,7 +24,7 @@ export class ListingUtils {
     return filtered;
   }
 
-  static sortListingsByDate(listings: Listing[], ascending: boolean = false): Listing[] {
+  static sortListingsByDate(listings: Listing[], ascending = false): Listing[] {
     return [...listings].sort((a, b) => {
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();

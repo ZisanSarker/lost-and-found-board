@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
@@ -247,16 +247,14 @@ export class EditItemComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
   itemId!: string;
-  currentUser: any = null;
+  currentUser: unknown = null;
 
   private readonly baseUrl = `${environment.apiBaseUrl}/api/item`;
 
-  constructor(
-    private http: HttpClient,
-    private route: ActivatedRoute,
-    private router: Router,
-    private authService: AuthService
-  ) {}
+  private http = inject(HttpClient);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private authService = inject(AuthService);
 
   ngOnInit() {
     // Get current user
@@ -282,14 +280,14 @@ export class EditItemComponent implements OnInit {
     this.isLoadingItem = true;
     this.errorMessage = '';
 
-    this.http.get<any>(`${this.baseUrl}/api/item/${this.itemId}`)
+    this.http.get<{ success: boolean; data: unknown }>(`${this.baseUrl}/api/item/${this.itemId}`)
       .subscribe({
-        next: (response) => {
+        next: (response: { success: boolean; data: any }) => {
           this.isLoadingItem = false;
           
           if (response.success && response.data) {
             // Check if current user owns this item
-            if (response.data.userId !== this.currentUser.id) {
+            if ((response.data as any).userId !== (this.currentUser as any).id) {
               this.errorMessage = 'You can only edit your own items';
               return;
             }
@@ -314,9 +312,8 @@ export class EditItemComponent implements OnInit {
             this.errorMessage = 'Failed to load item data';
           }
         },
-        error: (error) => {
+        error: (error: any) => {
           this.isLoadingItem = false;
-          console.error('Load item error:', error);
           
           if (error.status === 404) {
             this.errorMessage = 'Item not found';
@@ -348,7 +345,7 @@ export class EditItemComponent implements OnInit {
 
     this.http.patch(`${this.baseUrl}/api/item/${this.item.id}`, updateData)
       .subscribe({
-        next: (response: any) => {
+        next: (response: { success?: boolean; message?: string }) => {
           this.isLoading = false;
           
           if (response.success) {
@@ -362,9 +359,8 @@ export class EditItemComponent implements OnInit {
             this.errorMessage = response.message || 'Failed to update item';
           }
         },
-        error: (error) => {
+        error: (error: any) => {
           this.isLoading = false;
-          console.error('Update error:', error);
           
           if (error.status === 404) {
             this.errorMessage = 'Item not found';

@@ -37,7 +37,6 @@ exports.sendEmails = async (req, res) => {
 
     res.status(200).json({ success: true, message: 'Emails sent to both users.' });
   } catch (error) {
-    console.error('Error sending email:', error.message);
     res.status(500).json({ success: false, error: 'Failed to send emails.' });
   }
 };

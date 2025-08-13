@@ -39,7 +39,6 @@ import { FilterTab, ListingFilter } from '../../models/listing.model';
               placeholder="Search listings..."
               [(ngModel)]="searchQuery"
               (ngModelChange)="onSearchChange($event)"
-              (keyup.enter)="onSearch()"
               class="pl-10 pr-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 w-full text-sm sm:text-base"
             />
           </div>
@@ -78,10 +77,10 @@ import { FilterTab, ListingFilter } from '../../models/listing.model';
 })
 export class ListingFilterComponent {
   @Input() activeFilter: ListingFilter = 'all';
-  @Input() searchQuery: string = '';
+  @Input() searchQuery = '';
   @Output() filterChange = new EventEmitter<ListingFilter>();
   @Output() searchChange = new EventEmitter<string>();
-  @Output() search = new EventEmitter<void>();
+  @Output() searchTriggered = new EventEmitter<void>();
 
   filterTabs: FilterTab[] = [
     { label: 'All', value: 'all' },
@@ -98,7 +97,7 @@ export class ListingFilterComponent {
   }
 
   onSearch(): void {
-    this.search.emit();
+    this.searchTriggered.emit();
   }
 
   getFilterTabClass(filter: ListingFilter): string {

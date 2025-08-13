@@ -90,8 +90,6 @@ import { AuthService } from '../../../../core/services/auth.service';
             </div>
             
             <!-- Additional decorative elements for larger screens -->
-            <div class="hidden lg:block absolute -top-4 -right-4 w-8 h-8 bg-orange-400 rounded-full opacity-60 animate-bounce-slow animation-delay-300"></div>
-            <div class="hidden xl:block absolute top-1/2 -left-6 w-4 h-4 bg-orange-500 rounded-full opacity-50 animate-bounce-slow animation-delay-700"></div>
           </div>
           
           <!-- Stats Section (for larger screens) -->

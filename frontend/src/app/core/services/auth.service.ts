@@ -5,23 +5,36 @@ import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 
+interface User {
+  id: string;
+  username: string;
+  email: string;
+  avatar?: string;
+  phone?: string;
+  location?: string;
+  bio?: string;
+  joinDate?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private userSubject = new BehaviorSubject<any | null>(null);
+  private userSubject = new BehaviorSubject<User | null>(null);
   public user$ = this.userSubject.asObservable();
 
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
 
-  constructor(private router: Router) {
+  private router = inject(Router);
+
+  constructor() {
     if (this.isBrowser) {
       this.loadUserFromStorage();
     }
   }
 
-  login(token: string, user: any): void {
+  login(token: string, user: User): void {
     if (this.isBrowser) {
       localStorage.setItem('accessToken', token);
       localStorage.setItem('user', JSON.stringify(user));
@@ -37,11 +50,11 @@ export class AuthService {
     return null;
   }
 
-  getUser(): any | null {
+  getUser(): User | null {
     return this.userSubject.getValue();
   }
 
-  getCurrentUser(): any | null {
+  getCurrentUser(): User | null {
     return this.userSubject.getValue();
   }
 
@@ -67,10 +80,9 @@ export class AuthService {
       
       if (token && userJson) {
         try {
-          const user = JSON.parse(userJson);
+          const user = JSON.parse(userJson) as User;
           this.userSubject.next(user);
-        } catch (error) {
-          console.error('Error parsing user data:', error);
+        } catch {
           this.logout();
         }
       } else {

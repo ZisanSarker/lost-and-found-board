@@ -78,22 +78,11 @@ exports.createItem = async (req, res) => {
 
 
 exports.getItemsByType = async (req, res) => {
-  console.log('🔍 CONTROLLER CALLED - getItemsByType');
-  console.log('📋 Request params:', req.params);
-  console.log('📋 Request query:', req.query);
-  
-  // Test response to see if this function is being called
-  if (req.query.test === 'true') {
-    return res.json({ message: 'Controller is working', query: req.query });
-  }
-  
   try {
     const { type } = req.params;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 6;
     const skip = (page - 1) * limit;
-    
-    console.log('🔍 PAGINATION DEBUG:', { type, page, limit, skip, query: req.query });
 
     if (!['lost', 'found'].includes(type)) {
       return res.status(400).json({
@@ -106,8 +95,6 @@ exports.getItemsByType = async (req, res) => {
     const totalCount = await Item.countDocuments({ type: type });
     const totalPages = Math.ceil(totalCount / limit);
 
-    console.log('🔍 DATABASE QUERY:', { totalCount, totalPages, skip, limit });
-
     // Get paginated items
     const items = await Item.find({ type: type })
       .sort({ createdAt: -1 })
@@ -115,8 +102,6 @@ exports.getItemsByType = async (req, res) => {
       .skip(skip)
       .limit(limit)
       .lean();
-
-    console.log('🔍 QUERY RESULT:', { itemsFound: items.length, requestedLimit: limit });
 
     const transformedItems = items.map(item => ({
       id: item._id.toString(),
@@ -145,14 +130,6 @@ exports.getItemsByType = async (req, res) => {
       hasPrevPage: page > 1,
       message: `${type.charAt(0).toUpperCase() + type.slice(1)} items retrieved successfully`
     };
-
-    console.log('🔍 RESPONSE:', { 
-      success: response.success, 
-      itemsCount: response.count, 
-      totalCount: response.totalCount,
-      totalPages: response.totalPages,
-      currentPage: response.currentPage
-    });
 
     res.status(200).json(response);
 
@@ -422,8 +399,6 @@ exports.searchItems = async (req, res) => {
     } = req.query;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    
-    console.log('SEARCH DEBUG:', { query, type, category, location, page, limit, skip });
 
     // Build search filter
     const filter = {};
@@ -453,8 +428,6 @@ exports.searchItems = async (req, res) => {
         { location: searchRegex }
       ];
     }
-
-    console.log('SEARCH FILTER:', filter);
 
     // Get total count for pagination
     const totalCount = await Item.countDocuments(filter);
@@ -517,8 +490,6 @@ exports.getAllItems = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 6;
     const skip = (page - 1) * limit;
-    
-    console.log('GET ALL ITEMS DEBUG:', { page, limit, skip });
 
     // Get total count for pagination
     const totalCount = await Item.countDocuments({});

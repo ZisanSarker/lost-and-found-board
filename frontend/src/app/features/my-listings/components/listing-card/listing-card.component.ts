@@ -15,7 +15,6 @@ import { ConfirmationModalComponent, ConfirmationModalData } from '../../../../s
         <img 
           [src]="listing.imageUrl || listing.image || 'assets/package_placeholder.jpg'" 
           [alt]="listing.title"
-          (error)="onImageError($event)"
           class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
         
@@ -204,9 +203,7 @@ export class ListingCardComponent {
 
   toggleDropdown(event: Event): void {
     event.stopPropagation();
-    console.log('Toggle dropdown clicked, current state:', this.isDropdownOpen);
     this.isDropdownOpen = !this.isDropdownOpen;
-    console.log('New dropdown state:', this.isDropdownOpen);
   }
 
   @HostListener('document:click', ['$event'])
@@ -252,8 +249,9 @@ export class ListingCardComponent {
     return 'bg-gradient-to-r from-green-700 to-green-600 text-white px-2 py-1 rounded-md text-xs font-medium';
   }
 
-  onImageError(event: any): void {
-    event.target.src = 'assets/package_placeholder.jpg';
+  onImageError(event: Event): void {
+    const target = event.target as HTMLImageElement;
+    target.src = 'assets/package_placeholder.jpg';
   }
 
   formatDate(date: string): string {

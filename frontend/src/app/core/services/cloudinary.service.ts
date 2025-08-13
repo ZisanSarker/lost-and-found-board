@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -20,7 +20,7 @@ export class CloudinaryService {
   private readonly CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dkdbcibqa/image/upload';
   private readonly UPLOAD_PRESET = 'lost-and-found';
 
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
 
   uploadImage(file: File): Observable<CloudinaryResponse> {
     const formData = new FormData();

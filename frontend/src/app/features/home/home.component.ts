@@ -41,8 +41,8 @@ import { NgIf } from '@angular/common';
 export class HomeComponent {
   private authService = inject(AuthService);
 
-  handleSearch({ query, category, location }: { query: string, category: string, location: string }) {
-    console.log('Search Triggered:', query, category, location);
+  handleSearch(): void {
+    // Search functionality handled by child components
   }
 
   isLoggedIn(): boolean {

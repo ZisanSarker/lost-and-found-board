@@ -59,7 +59,10 @@ export interface ConfirmationModalData {
             </div>
             <button 
               (click)="onCancel()"
+              (keyup.enter)="onCancel()"
+              (keyup.space)="onCancel()"
               class="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+              aria-label="Close modal"
             >
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -103,20 +106,20 @@ export class ConfirmationModalComponent {
   @Input() isOpen = false;
   @Input() data: ConfirmationModalData | null = null;
   @Output() confirm = new EventEmitter<void>();
-  @Output() cancel = new EventEmitter<void>();
-  @Output() closeModal = new EventEmitter<void>();
+  @Output() cancelled = new EventEmitter<void>();
+  @Output() modalClosed = new EventEmitter<void>();
 
   onConfirm(): void {
     this.confirm.emit();
   }
 
   onCancel(): void {
-    this.cancel.emit();
+    this.cancelled.emit();
   }
 
   onBackdropClick(event: Event): void {
     if (event.target === event.currentTarget) {
-      this.closeModal.emit();
+      this.modalClosed.emit();
     }
   }
 }

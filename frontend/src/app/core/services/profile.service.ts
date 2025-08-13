@@ -58,7 +58,7 @@ export class ProfileService {
       .pipe(catchError(this.handleError));
   }
 
-  private handleError(error: any) {
+  private handleError(error: { status?: number; error?: { message?: string } }) {
     let errorMessage = 'An error occurred';
     if (error.status === 401) {
       errorMessage = 'Session expired. Please login again.';

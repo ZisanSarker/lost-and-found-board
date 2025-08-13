@@ -81,9 +81,9 @@ import { CommonModule } from '@angular/common';
   styles: []
 })
 export class PaginationComponent {
-  @Input() currentPage: number = 1;
-  @Input() totalPages: number = 1;
-  @Input() maxVisiblePages: number = 5;
+  @Input() currentPage = 1;
+  @Input() totalPages = 1;
+  @Input() maxVisiblePages = 5;
   @Output() pageChange = new EventEmitter<number>();
 
   get showFirstPage(): boolean {

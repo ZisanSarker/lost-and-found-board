@@ -25,8 +25,9 @@ import { FormsModule } from '@angular/forms';
             <form (ngSubmit)="onSubmit()" #contactForm="ngForm" class="space-y-4">
               <!-- Name -->
               <div>
-                <label class="block text-sm font-medium text-orange-700 mb-2">Name *</label>
+                <label for="name" class="block text-sm font-medium text-orange-700 mb-2">Name *</label>
                 <input 
+                  id="name"
                   type="text" 
                   [(ngModel)]="formData.name"
                   name="name"
@@ -37,8 +38,9 @@ import { FormsModule } from '@angular/forms';
 
               <!-- Email -->
               <div>
-                <label class="block text-sm font-medium text-orange-700 mb-2">Email *</label>
+                <label for="email" class="block text-sm font-medium text-orange-700 mb-2">Email *</label>
                 <input 
+                  id="email"
                   type="email" 
                   [(ngModel)]="formData.email"
                   name="email"
@@ -49,8 +51,9 @@ import { FormsModule } from '@angular/forms';
 
               <!-- Subject -->
               <div>
-                <label class="block text-sm font-medium text-orange-700 mb-2">Subject *</label>
+                <label for="subject" class="block text-sm font-medium text-orange-700 mb-2">Subject *</label>
                 <select 
+                  id="subject"
                   [(ngModel)]="formData.subject"
                   name="subject"
                   required
@@ -66,8 +69,9 @@ import { FormsModule } from '@angular/forms';
 
               <!-- Message -->
               <div>
-                <label class="block text-sm font-medium text-orange-700 mb-2">Message *</label>
+                <label for="message" class="block text-sm font-medium text-orange-700 mb-2">Message *</label>
                 <textarea 
+                  id="message"
                   [(ngModel)]="formData.message"
                   name="message"
                   required

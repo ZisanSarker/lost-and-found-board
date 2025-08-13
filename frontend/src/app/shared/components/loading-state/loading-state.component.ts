@@ -72,11 +72,11 @@ export class LoadingStateComponent {
   @Input() size: LoadingSize = 'md';
   @Input() variant: LoadingVariant = 'primary';
   @Input() text?: string;
-  @Input() itemCount: number = 2;
-  @Input() showImage: boolean = true;
-  @Input() fullscreen: boolean = false;
-  @Input() overlay: boolean = false;
-  @Input() progress: number = 0;
+  @Input() itemCount = 2;
+  @Input() showImage = true;
+  @Input() fullscreen = false;
+  @Input() overlay = false;
+  @Input() progress = 0;
 
   get skeletonItems(): number[] {
     return Array.from({ length: this.itemCount }, (_, i) => i + 1);

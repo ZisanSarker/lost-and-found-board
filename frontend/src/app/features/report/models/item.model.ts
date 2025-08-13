@@ -13,7 +13,7 @@ export interface ItemFormData {
 export interface ApiResponse {
   success: boolean;
   message: string;
-  data?: any;
+  data?: unknown;
   errors?: string[];
 }
 

@@ -2,6 +2,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ItemCardComponent } from '../item-card/item-card.component';
+import { Item } from '../../models/item.model';
 
 @Component({
   selector: 'app-item-grid',
@@ -66,11 +67,11 @@ import { ItemCardComponent } from '../item-card/item-card.component';
   `
 })
 export class ItemGridComponent {
-  @Input() items: any[] = [];
+  @Input() items: Item[] = [];
   @Input() loading = false;
   @Input() emptyMessage = 'No items found';
 
-  trackByItemId(index: number, item: any): string {
+  trackByItemId(index: number, item: Item): string {
     return item.id;
   }
 }

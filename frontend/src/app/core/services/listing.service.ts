@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Listing, ListingResponse, ListingActionResponse } from '../../features/my-listings/models/listing.model';
+import { ListingResponse, ListingActionResponse } from '../../features/my-listings/models/listing.model';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -12,27 +12,16 @@ export class ListingService {
   private readonly API_BASE_URL = environment.apiBaseUrl;
   private readonly ITEMS_ENDPOINT = `${this.API_BASE_URL}/api/item`;
 
-  constructor(
-    private http: HttpClient,
-    private authService: AuthService
-  ) {}
+  private http = inject(HttpClient);
+  private authService = inject(AuthService);
 
-  private getHeaders(): HttpHeaders {
+  private getHeaders(contentType?: string): HttpHeaders {
     const token = this.authService.getToken();
     const headers = new HttpHeaders();
     
-    if (token) {
-      return headers.set('Authorization', `Bearer ${token}`);
+    if (contentType) {
+      headers.set('Content-Type', contentType);
     }
-    
-    return headers;
-  }
-
-  private getDeleteHeaders(): HttpHeaders {
-    const token = this.authService.getToken();
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
     
     if (token) {
       return headers.set('Authorization', `Bearer ${token}`);
@@ -41,7 +30,7 @@ export class ListingService {
     return headers;
   }
 
-  getUserListings(userId: string, page: number = 1, limit: number = 6): Observable<ListingResponse> {
+  getUserListings(userId: string, page = 1, limit = 6): Observable<ListingResponse> {
     const params = { page: page.toString(), limit: limit.toString() };
     return this.http.get<ListingResponse>(
       `${this.ITEMS_ENDPOINT}/user/${userId}`,
@@ -52,13 +41,10 @@ export class ListingService {
     );
   }
 
-  deleteListing(listingId: string, userId: string): Observable<ListingActionResponse> {
-    console.log('Deleting listing:', listingId, 'for user:', userId);
-    console.log('Headers:', this.getDeleteHeaders());
-    
+  deleteListing(listingId: string): Observable<ListingActionResponse> {
     return this.http.delete<ListingActionResponse>(
       `${this.ITEMS_ENDPOINT}/${listingId}`,
-      { headers: this.getDeleteHeaders() }
+      { headers: this.getHeaders('application/json') }
     );
   }
 }

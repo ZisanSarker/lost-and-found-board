@@ -82,26 +82,91 @@ const baseUrl = environment.apiBaseUrl;
               iconType="email"
             />
 
-            <app-form-input
-              label="Password"
-              [control]="password"
-              type="password"
-              placeholder="Create a strong password"
-              errorMessage="Password must be at least 8 characters, include uppercase, lowercase, number, and special character."
-              [required]="true"
-              iconType="lock"
-              helpText="Must be at least 8 characters with uppercase, lowercase, number, and special character"
-            />
+            <!-- Password Field with Show/Hide Toggle -->
+            <div class="space-y-2">
+              <label for="password" class="block text-sm sm:text-base font-semibold text-orange-800">
+                Password <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <input
+                  id="password"
+                  [type]="showPassword ? 'text' : 'password'"
+                  [formControl]="password"
+                  placeholder="Create a strong password"
+                  required
+                  class="input-responsive w-full pr-12 focus:ring-orange-500 focus:border-orange-500"
+                />
+                <button
+                  type="button"
+                  (click)="togglePasswordVisibility()"
+                  class="absolute inset-y-0 right-0 flex items-center pr-3 text-orange-400 hover:text-orange-600 transition-colors"
+                  [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+                >
+                  <svg *ngIf="!showPassword" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <svg *ngIf="showPassword" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                  </svg>
+                </button>
+              </div>
+              <!-- Error Message -->
+              <div
+                *ngIf="password.touched && password.invalid"
+                class="flex items-start gap-2 text-sm text-red-600"
+              >
+                <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.888-.833-2.658 0L3.156 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <span>Password must be at least 8 characters, include uppercase, lowercase, number, and special character.</span>
+              </div>
+              <!-- Help Text -->
+              <p class="text-xs sm:text-sm text-gray-500">
+                Must be at least 8 characters with uppercase, lowercase, number, and special character
+              </p>
+            </div>
 
-            <app-form-input
-              label="Confirm Password"
-              [control]="confirmPassword"
-              type="password"
-              placeholder="Confirm your password"
-              errorMessage="Passwords do not match."
-              [required]="true"
-              iconType="lock"
-            />
+            <!-- Confirm Password Field with Show/Hide Toggle -->
+            <div class="space-y-2">
+              <label for="confirmPassword" class="block text-sm sm:text-base font-semibold text-orange-800">
+                Confirm Password <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <input
+                  id="confirmPassword"
+                  [type]="showConfirmPassword ? 'text' : 'password'"
+                  [formControl]="confirmPassword"
+                  placeholder="Confirm your password"
+                  required
+                  class="input-responsive w-full pr-12 focus:ring-orange-500 focus:border-orange-500"
+                />
+                <button
+                  type="button"
+                  (click)="toggleConfirmPasswordVisibility()"
+                  class="absolute inset-y-0 right-0 flex items-center pr-3 text-orange-400 hover:text-orange-600 transition-colors"
+                  [attr.aria-label]="showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'"
+                >
+                  <svg *ngIf="!showConfirmPassword" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <svg *ngIf="showConfirmPassword" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                  </svg>
+                </button>
+              </div>
+              <!-- Error Message -->
+              <div
+                *ngIf="confirmPassword.touched && confirmPassword.invalid"
+                class="flex items-start gap-2 text-sm text-red-600"
+              >
+                <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.888-.833-2.658 0L3.156 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <span>Passwords do not match.</span>
+              </div>
+            </div>
           </div>
 
           <!-- Password Requirements -->
@@ -188,6 +253,8 @@ const baseUrl = environment.apiBaseUrl;
 export class SignUpComponent implements OnInit {
   form: FormGroup;
   isLoading = false;
+  showPassword = false;
+  showConfirmPassword = false;
 
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
@@ -216,9 +283,10 @@ export class SignUpComponent implements OnInit {
       const formData = this.form.value;
 
       this.http.post(`${baseUrl}/api/auth/register`, formData).subscribe({
-        next: (response: any) => {
+        next: (response: { accessToken?: string; user?: unknown; message?: string }) => {
+          this.isLoading = false;
           if (response.accessToken && response.user) {
-            this.authService.login(response.accessToken, response.user);
+            this.authService.login(response.accessToken, response.user as { id: string; username: string; email: string });
             this.toast.success('Account created successfully!', 'Welcome!');
             this.router.navigate(['/dashboard']);
           } else {
@@ -226,14 +294,11 @@ export class SignUpComponent implements OnInit {
           }
         },
         error: (error) => {
-          console.error('Registration error:', error);
+          this.isLoading = false;
           this.toast.error(
             error.error?.message || 'Registration failed. Please try again.',
             'Error'
           );
-        },
-        complete: () => {
-          this.isLoading = false;
         }
       });
     }
@@ -290,5 +355,13 @@ export class SignUpComponent implements OnInit {
 
   get confirmPassword(): FormControl {
     return this.form.get('confirmPassword') as FormControl;
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordVisibility(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 }

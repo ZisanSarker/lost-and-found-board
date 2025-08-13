@@ -7,8 +7,7 @@ export function formatDate(date: Date): string {
       month: 'long',
       day: 'numeric',
     }).format(new Date(date));
-  } catch (error) {
-    console.error('Error formatting date:', error);
+  } catch {
     return 'Unknown';
   }
 }

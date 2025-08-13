@@ -42,9 +42,9 @@ export interface Notification {
   unread: boolean;
 }
 
-export interface ApiResponse {
+export interface ApiResponse<T = unknown[]> {
   success: boolean;
-  data: any[];
+  data: T;
   message?: string;
   count?: number;
 }
@@ -96,7 +96,7 @@ export class DataService {
       });
     }
 
-    return this.http.get<ApiResponse>(
+    return this.http.get<ApiResponse<Listing[]>>(
       `${this.baseUrl}/api/item/user/${user.id}`,
       { headers: this.getAuthHeaders() }
     ).pipe(

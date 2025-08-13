@@ -71,7 +71,6 @@ interface ApiResponse {
               [src]="userProfile()!.avatar" 
               [alt]="userProfile()!.username"
               class="w-full h-full object-cover"
-              (error)="onImageError($event)"
             />
           </div>
           
@@ -147,7 +146,6 @@ export class ProfileSidebarComponent implements OnInit {
           this.loading.set(false);
         },
         error: (err) => {
-          console.error('Error loading profile:', err);
           let errorMessage = 'Failed to load profile';
 
           if (err.status === 401) {
@@ -178,10 +176,7 @@ export class ProfileSidebarComponent implements OnInit {
     return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
   }
 
-  onImageError(event: any) {
-    // Hide the broken image and show initials instead
-    event.target.style.display = 'none';
-  }
+
 
   navigateToProfile() {
     this.router.navigate(['/profile']);

@@ -41,7 +41,7 @@ export class ItemService {
   }
 
   // Get items by type (lost or found) with pagination
-  getItemsByType(type: ItemType, page: number = 1, limit: number = 6): Observable<ApiResponse<Item[]>> {
+  getItemsByType(type: ItemType, page = 1, limit = 6): Observable<ApiResponse<Item[]>> {
     const params = { page: page.toString(), limit: limit.toString() };
     return this.http.get<ApiResponse<Item[]>>(
       `${this.ITEMS_ENDPOINT}/type/${type}`,
@@ -82,7 +82,6 @@ export class ItemService {
         {
           headers: new HttpHeaders({
             Authorization: `Bearer ${this.authService.getToken()}`
-            // Note: Don't set Content-Type for FormData, browser will set it automatically
           })
         }
       );

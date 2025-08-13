@@ -1,9 +1,9 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CloudinaryService } from '../../../../core/services/cloudinary.service';
 import { ToastrService } from 'ngx-toastr';
 import { ImageFile } from '../../models/item.model';
-import { firstValueFrom } from 'rxjs';
+
 
 @Component({
   selector: 'app-image-upload',
@@ -46,7 +46,6 @@ import { firstValueFrom } from 'rxjs';
         <input
           type="file"
           accept="image/*"
-          (change)="onImageSelected($event)"
           class="hidden"
           #fileInput
         />
@@ -90,7 +89,6 @@ import { firstValueFrom } from 'rxjs';
         <input
           type="file"
           accept="image/*"
-          (change)="onImageSelected($event)"
           class="hidden"
           #fileInput
         />
@@ -142,37 +140,17 @@ import { firstValueFrom } from 'rxjs';
 })
 export class ImageUploadComponent {
   @Input() selectedImage: ImageFile | null = null;
-  @Input() uploadedImageUrl: string = '';
-  @Input() isUploading: boolean = false;
+  @Input() uploadedImageUrl = '';
+  @Input() isUploading = false;
   
   @Output() imageSelected = new EventEmitter<ImageFile>();
   @Output() imageRemoved = new EventEmitter<void>();
   @Output() uploadedImageRemoved = new EventEmitter<void>();
 
-  constructor(
-    private cloudinaryService: CloudinaryService,
-    private toastr: ToastrService
-  ) {}
+  private cloudinaryService = inject(CloudinaryService);
+  private toastr = inject(ToastrService);
 
-  async onImageSelected(event: any): Promise<void> {
-    const file = event.target.files[0];
-    if (!file) return;
 
-    if (!this.cloudinaryService.isValidImageFile(file)) {
-      this.toastr.error('Please select a valid image file (JPEG, PNG, GIF) under 5MB', 'Invalid File');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      const imageFile: ImageFile = {
-        file: file,
-        preview: e.target.result
-      };
-      this.imageSelected.emit(imageFile);
-    };
-    reader.readAsDataURL(file);
-  }
 
   getFileSize(bytes: number): string {
     return this.cloudinaryService.getReadableFileSize(bytes);

@@ -22,7 +22,6 @@ exports.getProfile = async (req, res) => {
       user: sanitizeUser(user)
     });
   } catch (err) {
-    console.error(`Get Profile Error: ${err.message}`.red.bold);
     res.status(500).json({ message: 'Server error while fetching profile' });
   }
 };
@@ -72,8 +71,6 @@ exports.updateProfile = async (req, res) => {
       user: sanitizeUser(updatedUser)
     });
   } catch (err) {
-    console.error(`Update Profile Error: ${err.message}`.red.bold);
-
     if (err.name === 'ValidationError') {
       const errors = Object.values(err.errors).map(e => e.message);
       return res.status(400).json({ message: errors.join(', ') });
@@ -98,7 +95,6 @@ exports.deleteProfile = async (req, res) => {
       message: 'Profile deleted successfully'
     });
   } catch (err) {
-    console.error(`Delete Profile Error: ${err.message}`.red.bold);
     res.status(500).json({ message: 'Server error while deleting profile' });
   }
 };

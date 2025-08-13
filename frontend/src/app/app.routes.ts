@@ -4,7 +4,6 @@ import { AuthGuard } from './core/guards/auth.guard';
 import { UnAuthGuard } from './core/guards/unauth.guard';
 
 export const routes: Routes = [
-  // Auth routes outside Layout (no AuthGuard needed here)
   {
     path: 'auth/sign-in',
     canActivate: [UnAuthGuard],
@@ -17,7 +16,6 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/auth/sign-up/sign-up.component').then((m) => m.SignUpComponent),
   },
-  // Main app routes inside LayoutComponent
   {
     path: '',
     component: LayoutComponent,
@@ -111,7 +109,6 @@ export const routes: Routes = [
       }
     ],
   },
-  // catch all - redirect unauthenticated users to sign-in
   {
     path: '**',
     redirectTo: 'auth/sign-in',

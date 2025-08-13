@@ -8,12 +8,13 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="mb-4 sm:mb-6">
-      <label class="block text-sm sm:text-base font-semibold text-orange-800 mb-2 sm:mb-3">
+      <label [for]="inputId" class="block text-sm sm:text-base font-semibold text-orange-800 mb-2 sm:mb-3">
         {{ label }}
         <span *ngIf="required" class="text-red-500 ml-1">*</span>
       </label>
       <div class="relative">
         <input
+          [id]="inputId"
           [type]="type"
           [formControl]="control"
           [placeholder]="placeholder"
@@ -54,14 +55,15 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
   `,
 })
 export class FormInputComponent {
-  @Input() label: string = '';
+  @Input() label = '';
   @Input() control!: FormControl;
-  @Input() type: string = 'text';
-  @Input() placeholder: string = '';
-  @Input() errorMessage: string = '';
-  @Input() required: boolean = false;
-  @Input() helpText: string = '';
+  @Input() type = 'text';
+  @Input() placeholder = '';
+  @Input() errorMessage = '';
+  @Input() required = false;
+  @Input() helpText = '';
   @Input() iconType: 'email' | 'phone' | 'user' | 'lock' | 'search' | 'text' = 'text';
+  @Input() inputId = '';
 
   get hasIcon(): boolean {
     return this.iconType !== 'text';

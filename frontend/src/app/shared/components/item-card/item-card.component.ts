@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -13,7 +13,6 @@ import { Router } from '@angular/router';
         <img 
           [src]="image || 'assets/package_placeholder.jpg'" 
           [alt]="title"
-          (error)="onImageError($event)"
           class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
         
@@ -120,16 +119,13 @@ export class ItemCardComponent {
   @Input() type!: 'lost' | 'found';
   @Input() image?: string;
 
-  constructor(private router: Router) {}
+  private router = inject(Router);
 
   get isLost(): boolean {
     return this.type === 'lost';
   }
 
-  onImageError(event: Event) {
-    const target = event.target as HTMLImageElement;
-    target.src = 'assets/package_placeholder.jpg';
-  }
+
 
   formatDate(dateString: string): string {
     try {
@@ -157,25 +153,14 @@ export class ItemCardComponent {
   }
 
   onViewDetails() {
-    console.log('View Details clicked for item ID:', this.id);
-    console.log('Item data:', {
-      id: this.id,
-      title: this.title,
-      type: this.type
-    });
-    
     if (this.id) {
       this.router.navigate(['/item-detail', this.id]);
-    } else {
-      console.warn('No ID provided for item card navigation');
     }
   }
 
   onContact() {
     if (this.id) {
       this.router.navigate(['/contact', this.id]);
-    } else {
-      console.warn('No ID provided for item card navigation');
     }
   }
 }

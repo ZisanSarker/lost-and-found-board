@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
@@ -246,13 +246,11 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
   toastMessage = '';
   private subscription = new Subscription();
 
-  constructor(
-    private http: HttpClient,
-    private route: ActivatedRoute,
-    private router: Router,
-    private location: Location,
-    private authService: AuthService
-  ) {}
+  private http = inject(HttpClient);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private location = inject(Location);
+  private authService = inject(AuthService);
 
   ngOnInit() {
     this.loadItemDetails();
@@ -267,7 +265,6 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     const itemId = this.route.snapshot.paramMap.get('id');
-    console.log('Loading item details for ID:', itemId);
     
     if (!itemId) {
       this.errorMessage = 'Item ID not provided';
@@ -275,7 +272,6 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Check if user is authenticated
     if (!this.authService.isLoggedIn()) {
       this.errorMessage = 'Please log in to view item details';
       this.isLoading = false;
@@ -283,7 +279,6 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
     }
 
     const token = this.authService.getToken();
-    console.log('Auth token:', token ? 'Present' : 'Missing');
 
     this.subscription.add(
       this.http.get<{ success: boolean; data: Listing; message?: string }>(`${environment.apiBaseUrl}/api/item/${itemId}`, {
@@ -293,7 +288,6 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
         }
       }).subscribe({
         next: (response) => {
-          console.log('API Response:', response);
           if (response.success) {
             this.item = response.data;
           } else {
@@ -301,9 +295,8 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
           }
           this.isLoading = false;
         },
-        error: (error) => {
-          console.error('Error loading item details:', error);
-          this.errorMessage = error.error?.message || 'Failed to load item details';
+        error: () => {
+          this.errorMessage = 'Failed to load item details';
           this.isLoading = false;
         }
       })
@@ -348,8 +341,7 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
               this.showToastMessage(response.message || 'Failed to delete item');
             }
           },
-          error: (error) => {
-            console.error('Error deleting item:', error);
+          error: () => {
             this.showToastMessage('Failed to delete item');
           }
         })
@@ -359,7 +351,6 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
 
   contactOwner() {
     if (this.item) {
-      // Copy contact info to clipboard
       navigator.clipboard.writeText(this.item.contactInfo).then(() => {
         this.showToastMessage('Contact information copied to clipboard');
       }).catch(() => {
@@ -389,8 +380,7 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
             this.showToastMessage(response.message || 'Failed to update item status');
           }
         },
-        error: (error) => {
-          console.error('Error updating item status:', error);
+        error: () => {
           this.showToastMessage('Failed to update item status');
         }
       })

@@ -36,9 +36,9 @@ import { CommonModule } from '@angular/common';
   `,
 })
 export class NotificationSidebarComponent {
-  @Input() activeTab: string = 'my-listings';
-  @Input() unreadMessagesCount: number = 0;
-  @Input() unreadNotificationsCount: number = 0;
+  @Input() activeTab = 'my-listings';
+  @Input() unreadMessagesCount = 0;
+  @Input() unreadNotificationsCount = 0;
   @Output() tabChange = new EventEmitter<string>();
 
   getTabButtonClass(tab: string): string {

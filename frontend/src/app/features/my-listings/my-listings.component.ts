@@ -183,10 +183,10 @@ export class MyListingsComponent implements OnInit, OnDestroy {
   currentUsername = '';
 
   // Pagination properties
-  currentPage: number = 1;
-  itemsPerPage: number = 6;
-  totalPages: number = 1;
-  totalCount: number = 0;
+  currentPage = 1;
+  itemsPerPage = 6;
+  totalPages = 1;
+  totalCount = 0;
 
   private subscription = new Subscription();
   private listingService = inject(ListingService);
@@ -233,7 +233,6 @@ export class MyListingsComponent implements OnInit, OnDestroy {
           this.isInitialLoad = false;
         },
         error: (error) => {
-          console.error('Error loading listings:', error);
           this.handleError(error);
           this.isLoading = false;
           this.isInitialLoad = false;
@@ -274,14 +273,13 @@ export class MyListingsComponent implements OnInit, OnDestroy {
   }
 
   onDeleteListing(listingId: string) {
-    this.listingService.deleteListing(listingId, this.userId!).subscribe({
-      next: (response) => {
+    this.listingService.deleteListing(listingId).subscribe({
+      next: () => {
         this.allListings = this.allListings.filter(l => l.id !== listingId);
         this.applyFilters();
         this.toastr.success('Post deleted successfully!', 'Success');
       },
       error: (error) => {
-        console.error('Error deleting listing:', error);
         const errorMessage = error.error?.message || 'Failed to delete post. Please try again.';
         this.toastr.error(errorMessage, 'Error');
       }
@@ -309,7 +307,7 @@ export class MyListingsComponent implements OnInit, OnDestroy {
     this.createNewListing('found');
   }
 
-  private handleError(error: any) {
+  private handleError(error: { status?: number }) {
     if (error.status === 401) {
       this.errorMessage = 'Authentication required. Please log in again.';
       this.showRetryButton = false;

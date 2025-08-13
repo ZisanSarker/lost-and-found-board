@@ -16,8 +16,6 @@ import { FormsModule } from '@angular/forms';
           <input
             type="text"
             [(ngModel)]="query"
-            (input)="handleSearch()"
-            (keydown.enter)="handleSearch()"
             placeholder="Search for items..."
             class="input-responsive pl-10 pr-4 focus:ring-orange-500 focus:border-orange-500"
           />
@@ -69,8 +67,9 @@ import { FormsModule } from '@angular/forms';
       <div *ngIf="showFilters" class="mt-4 lg:hidden animate-slide-down">
         <div class="bg-orange-50 rounded-lg p-4 space-y-3">
           <div>
-            <label class="block text-sm font-medium text-orange-800 mb-1">Category</label>
+            <label for="category-select" class="block text-sm font-medium text-orange-800 mb-1">Category</label>
             <select 
+              id="category-select"
               [(ngModel)]="category" 
               (change)="handleSearch()"
               class="input-responsive w-full"
@@ -84,8 +83,9 @@ import { FormsModule } from '@angular/forms';
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-orange-800 mb-1">Location</label>
+            <label for="location-select" class="block text-sm font-medium text-orange-800 mb-1">Location</label>
             <select 
+              id="location-select"
               [(ngModel)]="location" 
               (change)="handleSearch()"
               class="input-responsive w-full"
@@ -165,10 +165,10 @@ export class SearchBarComponent {
   location = 'all';
   showFilters = false;
 
-  @Output() search = new EventEmitter<{ query: string; category: string; location: string }>();
+  @Output() searchTriggered = new EventEmitter<{ query: string; category: string; location: string }>();
 
   handleSearch() {
-    this.search.emit({
+    this.searchTriggered.emit({
       query: this.query.trim(),
       category: this.category,
       location: this.location
@@ -202,7 +202,7 @@ export class SearchBarComponent {
   }
 
   getCategoryLabel(category: string): string {
-    const labels: { [key: string]: string } = {
+    const labels: Record<string, string> = {
       'electronics': 'Electronics',
       'personal': 'Personal Items',
       'documents': 'Documents',
@@ -212,7 +212,7 @@ export class SearchBarComponent {
   }
 
   getLocationLabel(location: string): string {
-    const labels: { [key: string]: string } = {
+    const labels: Record<string, string> = {
       'downtown': 'Downtown',
       'coffee shop': 'Coffee Shop',
       'central park': 'Central Park',

@@ -14,10 +14,13 @@ export type ErrorStateLayout = 'inline' | 'centered' | 'fullscreen';
       [class]="containerClass"
       [ngStyle]="layout === 'fullscreen' ? { position: 'fixed', inset: '0', zIndex: '50' } : {}"
     >
-      <div
-        [class]="contentClass"
-        (click)="layout === 'fullscreen' ? $event.stopPropagation() : null"
-      >
+              <div
+          [class]="contentClass"
+          (click)="layout === 'fullscreen' ? $event.stopPropagation() : null"
+          (keyup.enter)="layout === 'fullscreen' ? $event.stopPropagation() : null"
+          (keyup.space)="layout === 'fullscreen' ? $event.stopPropagation() : null"
+          tabindex="0"
+        >
         <!-- Icon -->
         <div [class]="iconContainerClass">
           <svg
@@ -96,18 +99,18 @@ export type ErrorStateLayout = 'inline' | 'centered' | 'fullscreen';
   `
 })
 export class ErrorStateComponent {
-  @Input() errorMessage: string = 'An error occurred';
+  @Input() errorMessage = 'An error occurred';
   @Input() title?: string;
   @Input() errorDetails?: string;
   @Input() variant: ErrorStateVariant = 'danger';
   @Input() size: ErrorStateSize = 'md';
   @Input() layout: ErrorStateLayout = 'inline';
   
-  @Input() showRetryButton: boolean = true;
-  @Input() retryButtonText: string = 'Retry';
-  @Input() showDismissButton: boolean = false;
-  @Input() dismissButtonText: string = 'Dismiss';
-  @Input() showDetails: boolean = false;
+  @Input() showRetryButton = true;
+  @Input() retryButtonText = 'Retry';
+  @Input() showDismissButton = false;
+  @Input() dismissButtonText = 'Dismiss';
+  @Input() showDetails = false;
   
   @Output() retry = new EventEmitter<void>();
   @Output() dismiss = new EventEmitter<void>();
@@ -166,9 +169,7 @@ export class ErrorStateComponent {
     return `${baseClass} ${sizeClasses[this.size]} ${variantClasses[this.variant]}`;
   }
 
-  get textContainerClass(): string {
-    return 'space-y-1';
-  }
+  readonly textContainerClass = 'space-y-1';
 
   get titleClass(): string {
     const baseClass = 'font-semibold';

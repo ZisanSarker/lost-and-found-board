@@ -67,7 +67,6 @@ exports.register = async (req, res) => {
       refreshToken,
     });
   } catch (err) {
-    console.error(`Register Error: ${err.message}`.red.bold);
     res.status(500).json({ message: 'Server error during registration' });
   }
 };
@@ -109,7 +108,6 @@ exports.login = async (req, res) => {
       refreshToken,
     });
   } catch (err) {
-    console.error(`Login Error: ${err.message}`.red.bold);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -121,7 +119,6 @@ exports.logout = (req, res) => {
     res.clearCookie('refreshToken');
     res.status(200).json({ message: 'Logged out successfully' });
   } catch (err) {
-    console.error(`❌ Logout Error: ${err.message}`.red.bold);
     res.status(500).json({ message: 'Server error during logout' });
   }
 };
@@ -150,7 +147,6 @@ exports.refreshToken = (req, res) => {
 
     res.status(200).json({ message: 'Tokens refreshed successfully' });
   } catch (err) {
-    console.error(`Refresh Token Error: ${err.message}`.red.bold);
     res.status(403).json({ message: 'Invalid refresh token' });
   }
 };
@@ -163,7 +159,6 @@ exports.getCurrentUser = async (req, res) => {
 
     res.status(200).json({ user });
   } catch (err) {
-    console.error(`Get User Error: ${err.message}`.red.bold);
     res.status(500).json({ message: 'Server error' });
   }
 };

@@ -90,7 +90,10 @@ import { AuthService } from '../../../../core/services/auth.service';
               <h3 class="text-xl sm:text-2xl font-bold text-gray-800">About Lost & Found Board</h3>
               <button 
                 (click)="closeModal()"
+                (keyup.enter)="closeModal()"
+                (keyup.space)="closeModal()"
                 class="text-gray-500 hover:text-gray-700 text-xl sm:text-2xl p-1 hover:bg-gray-100 rounded-full transition-colors"
+                tabindex="0"
               >
                 ×
               </button>

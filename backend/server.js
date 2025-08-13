@@ -13,15 +13,11 @@ const itemRoutes = require('./routes/item.routes');
 const authMiddleware = require('./middlewares/auth.middleware');
 require('colors');
 
-// Load environment variables
 dotenv.config();
-
-// Connect to DB
 connectDB();
 
 const app = express();
 
-// ───────────── Middleware ─────────────
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
@@ -34,7 +30,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
 
-// ───────────── Rate Limiting on Auth Only ─────────────
 const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -42,12 +37,11 @@ const authRateLimiter = rateLimit({
 });
 app.use('/api/auth', authRateLimiter);
 
-// ───────────── Session & Passport ─────────────
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false, // better for security
+    saveUninitialized: false,
     cookie: {
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
@@ -55,7 +49,6 @@ app.use(
   })
 );
 
-// ───────────── Routes ─────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', authMiddleware , profileRoutes);
 app.use('/api/item', authMiddleware, itemRoutes);
@@ -65,8 +58,6 @@ app.get('/', (req, res) => {
   res.send("Hello Beautiful People! 👋");
 });
 
-
-// ───────────── Global Error Handler ─────────────
 app.use((err, req, res, next) => {
   console.error(`Server Error: ${err.message}`.red.bold);
   res.status(500).json({
@@ -75,7 +66,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ───────────── Server ─────────────
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`.bgGreen.black);
