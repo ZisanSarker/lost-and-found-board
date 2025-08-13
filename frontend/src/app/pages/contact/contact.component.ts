@@ -299,7 +299,7 @@ export class ContactComponent implements OnInit {
       return;
     }
 
-    this.http.get<{ success: boolean; data: Item; message?: string }>(`${baseUrl}/items/${itemId}`).subscribe({
+    this.http.get<{ success: boolean; data: Item; message?: string }>(`${baseUrl}/api/item/${itemId}`).subscribe({
       next: (response) => {
         if (response.success) {
           this.item = response.data;
@@ -326,7 +326,7 @@ export class ContactComponent implements OnInit {
         itemTitle: this.item.title
       };
 
-      this.http.post(`${baseUrl}/contact`, formData).subscribe({
+      this.http.post(`${baseUrl}/api/email/contact`, formData).subscribe({
         next: (response: any) => {
           if (response.success) {
             this.showSuccess = true;

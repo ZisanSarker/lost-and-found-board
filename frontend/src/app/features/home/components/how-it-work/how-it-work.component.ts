@@ -15,9 +15,9 @@ import { Component } from '@angular/core';
           </p>
         </div>
 
-        <div class="grid-responsive grid-cols-responsive-sm items-stretch">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch">
           <!-- Card 1 -->
-          <div class="card-responsive-sm bg-gray-50 border border-gray-200 h-full text-center flex flex-col">
+          <div class="w-full bg-gray-50 border border-gray-200 rounded-lg p-6 lg:p-8 h-full text-center flex flex-col shadow-sm hover:shadow-md transition-shadow duration-300">
             <div class="mb-4 sm:mb-6 text-orange-500">
               <svg class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none"
                    viewBox="0 0 24 24" stroke="currentColor">
@@ -32,7 +32,7 @@ import { Component } from '@angular/core';
           </div>
 
           <!-- Card 2 -->
-          <div class="card-responsive-sm bg-gray-50 border border-gray-200 h-full text-center flex flex-col">
+          <div class="w-full bg-gray-50 border border-gray-200 rounded-lg p-6 lg:p-8 h-full text-center flex flex-col shadow-sm hover:shadow-md transition-shadow duration-300">
             <div class="mb-4 sm:mb-6 text-orange-500">
               <svg class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none"
                    viewBox="0 0 24 24" stroke="currentColor">
@@ -47,7 +47,7 @@ import { Component } from '@angular/core';
           </div>
 
           <!-- Card 3 -->
-          <div class="card-responsive-sm bg-gray-50 border border-gray-200 h-full text-center flex flex-col">
+          <div class="w-full bg-gray-50 border border-gray-200 rounded-lg p-6 lg:p-8 h-full text-center flex flex-col shadow-sm hover:shadow-md transition-shadow duration-300">
             <div class="mb-4 sm:mb-6 text-orange-500">
               <svg class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none"
                    viewBox="0 0 24 24" stroke="currentColor">

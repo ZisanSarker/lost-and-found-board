@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+    <div class="card-container bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
       <!-- Image Container with Responsive Size -->
       <div class="relative h-32 sm:h-40 md:h-48 w-full overflow-hidden bg-gray-200">
         <img 
@@ -32,12 +32,12 @@ import { Router } from '@angular/router';
       </div>
       
       <!-- Content -->
-      <div class="p-3 sm:p-4">
-        <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-2 line-clamp-2 leading-tight">
+      <div class="card-content p-3 sm:p-4">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-2 leading-tight overflow-hidden" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
           {{ title }}
         </h3>
         
-        <p class="text-gray-600 text-xs sm:text-sm mb-3 line-clamp-2 leading-relaxed">
+        <p class="text-gray-600 text-xs sm:text-sm mb-3 leading-relaxed overflow-hidden" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
           {{ description }}
         </p>
         
@@ -48,7 +48,7 @@ import { Router } from '@angular/router';
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <span class="truncate">{{ location }}</span>
+            <span class="overflow-hidden" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">{{ location }}</span>
           </div>
           
           <div class="flex items-center text-xs sm:text-sm text-gray-500">
@@ -60,7 +60,7 @@ import { Router } from '@angular/router';
         </div>
         
         <!-- Action Buttons -->
-        <div class="flex flex-col sm:flex-row gap-2">
+        <div class="card-actions flex flex-col sm:flex-row gap-2">
           <button 
             (click)="onViewDetails()"
             class="flex-1 bg-white hover:bg-orange-50 text-orange-500 border-2 border-orange-500 text-xs sm:text-sm font-medium py-2 px-3 sm:px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-1"
@@ -87,7 +87,29 @@ import { Router } from '@angular/router';
         </div>
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    :host {
+      display: block;
+      height: 100%;
+    }
+    
+    .card-container {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .card-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .card-actions {
+      margin-top: auto;
+    }
+  `]
 })
 export class ItemCardComponent {
   @Input() id!: string;
@@ -135,6 +157,13 @@ export class ItemCardComponent {
   }
 
   onViewDetails() {
+    console.log('View Details clicked for item ID:', this.id);
+    console.log('Item data:', {
+      id: this.id,
+      title: this.title,
+      type: this.type
+    });
+    
     if (this.id) {
       this.router.navigate(['/item-detail', this.id]);
     } else {

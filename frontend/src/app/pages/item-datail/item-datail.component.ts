@@ -267,15 +267,33 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     const itemId = this.route.snapshot.paramMap.get('id');
+    console.log('Loading item details for ID:', itemId);
+    
     if (!itemId) {
       this.errorMessage = 'Item ID not provided';
       this.isLoading = false;
       return;
     }
 
+    // Check if user is authenticated
+    if (!this.authService.isLoggedIn()) {
+      this.errorMessage = 'Please log in to view item details';
+      this.isLoading = false;
+      return;
+    }
+
+    const token = this.authService.getToken();
+    console.log('Auth token:', token ? 'Present' : 'Missing');
+
     this.subscription.add(
-      this.http.get<{ success: boolean; data: Listing; message?: string }>(`${environment.apiBaseUrl}/items/${itemId}`).subscribe({
+      this.http.get<{ success: boolean; data: Listing; message?: string }>(`${environment.apiBaseUrl}/api/item/${itemId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }).subscribe({
         next: (response) => {
+          console.log('API Response:', response);
           if (response.success) {
             this.item = response.data;
           } else {
@@ -312,8 +330,14 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
     if (!this.item) return;
 
     if (confirm('Are you sure you want to delete this item? This action cannot be undone.')) {
+      const token = this.authService.getToken();
       this.subscription.add(
-        this.http.delete<{ success: boolean; message?: string }>(`${environment.apiBaseUrl}/items/${this.item.id}`).subscribe({
+        this.http.delete<{ success: boolean; message?: string }>(`${environment.apiBaseUrl}/api/item/${this.item.id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }).subscribe({
           next: (response) => {
             if (response.success) {
               this.showToastMessage('Item deleted successfully');
@@ -347,9 +371,15 @@ export class ItemDetailComponent implements OnInit, OnDestroy {
   markAsResolved() {
     if (!this.item) return;
 
+    const token = this.authService.getToken();
     this.subscription.add(
-      this.http.patch<{ success: boolean; data: Listing; message?: string }>(`${environment.apiBaseUrl}/items/${this.item.id}`, {
+      this.http.patch<{ success: boolean; data: Listing; message?: string }>(`${environment.apiBaseUrl}/api/item/${this.item.id}`, {
         status: 'resolved'
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       }).subscribe({
         next: (response) => {
           if (response.success) {

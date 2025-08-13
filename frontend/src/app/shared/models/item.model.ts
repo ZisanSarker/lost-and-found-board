@@ -31,5 +31,10 @@ export interface ApiResponse<T = any> {
   success: boolean;
   data: T;
   count?: number;
+  totalCount?: number;
+  totalPages?: number;
+  currentPage?: number;
+  hasNextPage?: boolean;
+  hasPrevPage?: boolean;
   message: string;
 }

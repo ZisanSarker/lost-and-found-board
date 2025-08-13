@@ -282,7 +282,7 @@ export class EditItemComponent implements OnInit {
     this.isLoadingItem = true;
     this.errorMessage = '';
 
-    this.http.get<any>(`${this.baseUrl}/${this.itemId}`)
+    this.http.get<any>(`${this.baseUrl}/api/item/${this.itemId}`)
       .subscribe({
         next: (response) => {
           this.isLoadingItem = false;
@@ -343,11 +343,10 @@ export class EditItemComponent implements OnInit {
       location: this.item.location,
       date: this.item.date,
       contactInfo: this.item.contactInfo,
-      type: this.item.type,
-      userId: this.currentUser.id
+      type: this.item.type
     };
 
-    this.http.patch(`${this.baseUrl}/${this.item.id}`, updateData)
+    this.http.patch(`${this.baseUrl}/api/item/${this.item.id}`, updateData)
       .subscribe({
         next: (response: any) => {
           this.isLoading = false;

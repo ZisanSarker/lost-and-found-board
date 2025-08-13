@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ItemGridComponent } from '../../../../shared/components/item-grid/item-grid.component';
 import { SearchBarComponent } from '../../../../shared/components/search-bar/search-bar.component';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { Item, ItemType } from '../../../../shared/models/item.model';
 import { ItemService } from '../../../../core/services/item.service';
 import { ItemFilterService } from '../../../../core/services/item-filter.service';
@@ -9,7 +10,7 @@ import { ItemFilterService } from '../../../../core/services/item-filter.service
 @Component({
   selector: 'app-all-posts',
   standalone: true,
-  imports: [CommonModule, ItemGridComponent, SearchBarComponent],
+  imports: [CommonModule, ItemGridComponent, SearchBarComponent, PaginationComponent],
   template: `
     <div class="min-h-screen">
       <div class="container-responsive py-6 sm:py-8 lg:py-12">
@@ -40,7 +41,7 @@ import { ItemFilterService } from '../../../../core/services/item-filter.service
               >
                 <span class="hidden sm:inline">Lost Items</span>
                 <span class="sm:hidden">Lost</span>
-                <span class="block sm:inline">({{ filteredLostItems.length }})</span>
+                <span class="block sm:inline">({{ lostTotalCount }})</span>
               </button>
               <button
                 (click)="setActiveTab('found')"
@@ -49,7 +50,7 @@ import { ItemFilterService } from '../../../../core/services/item-filter.service
               >
                 <span class="hidden sm:inline">Found Items</span>
                 <span class="sm:hidden">Found</span>
-                <span class="block sm:inline">({{ filteredFoundItems.length }})</span>
+                <span class="block sm:inline">({{ foundTotalCount }})</span>
               </button>
             </div>
           </div>
@@ -82,20 +83,22 @@ import { ItemFilterService } from '../../../../core/services/item-filter.service
         <!-- Items Grid -->
         <app-item-grid
           *ngIf="!isLoading && !error"
-          [items]="visibleItems"
+          [items]="currentItems"
           [loading]="isLoading"
           [emptyMessage]="getEmptyMessage()"
         ></app-item-grid>
 
-        <!-- See All / Show Less Button -->
-        <div class="text-center mt-6 sm:mt-8" *ngIf="showToggleButton && !isLoading && !error">
-          <button
-            (click)="toggleShowAll()"
-            class="btn-responsive-lg bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-all duration-200"
-          >
-            <span class="hidden sm:inline">{{ showAll ? 'Show Less' : 'See All ' + activeTab + ' Items' }}</span>
-            <span class="sm:hidden">{{ showAll ? 'Show Less' : 'See All' }}</span>
-          </button>
+        <!-- Pagination -->
+        <app-pagination
+          *ngIf="!isLoading && !error && totalPages > 1"
+          [currentPage]="currentPage"
+          [totalPages]="totalPages"
+          (pageChange)="onPageChange($event)"
+        ></app-pagination>
+
+        <!-- Items Info -->
+        <div *ngIf="!isLoading && !error && currentItems.length > 0" class="text-center mt-4 text-sm text-gray-600">
+          Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, totalCount) }} of {{ totalCount }} {{ activeTab }} items
         </div>
       </div>
     </div>
@@ -104,33 +107,55 @@ import { ItemFilterService } from '../../../../core/services/item-filter.service
 export class AllPostsComponent implements OnInit {
   activeTab: ItemType = 'lost';
   isLoading = true;
-  showAll = false;
   error: string = '';
 
   searchQuery = '';
   searchCategory = 'all';
   searchLocation = 'all';
 
-  lostItems: Item[] = [];
-  foundItems: Item[] = [];
+  // Current page items (only 6 items per page)
+  currentItems: Item[] = [];
+
+  // Pagination properties
+  currentPage: number = 1;
+  itemsPerPage: number = 6;
+  totalPages: number = 1;
+  totalCount: number = 0;
+
+  // Total counts for tabs
+  lostTotalCount: number = 0;
+  foundTotalCount: number = 0;
+
+  // Math utility for template
+  Math = Math;
 
   private itemService = inject(ItemService);
   private itemFilterService = inject(ItemFilterService);
 
   ngOnInit() {
     this.loadData();
+    this.loadTotalCounts();
+  }
+
+  loadTotalCounts() {
+    this.itemService.getTotalCounts().subscribe({
+      next: (counts) => {
+        this.lostTotalCount = counts.lost;
+        this.foundTotalCount = counts.found;
+      },
+      error: (err) => {
+        console.error('Failed to load total counts:', err);
+        // Don't show error for total counts, just log it
+      }
+    });
   }
 
   setActiveTab(tab: ItemType) {
     if (this.activeTab !== tab) {
       this.activeTab = tab;
-      this.showAll = false;
+      this.currentPage = 1; // Reset to first page when switching tabs
       this.error = '';
-
-      if ((tab === 'lost' && this.lostItems.length === 0) ||
-          (tab === 'found' && this.foundItems.length === 0)) {
-        this.loadItemsByType(tab);
-      }
+      this.loadItemsByType(tab, 1);
     }
   }
 
@@ -138,35 +163,26 @@ export class AllPostsComponent implements OnInit {
     this.error = '';
     this.isLoading = true;
     
-    this.itemService.getAllItems().subscribe({
-      next: (responses) => {
-        if (responses.lost.success) {
-          this.lostItems = responses.lost.data;
-        }
-        if (responses.found.success) {
-          this.foundItems = responses.found.data;
-        }
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Failed to load items:', err);
-        this.error = 'Failed to load items. Please try again.';
-        this.isLoading = false;
-      }
-    });
+    // Load first page of the active tab
+    this.loadItemsByType(this.activeTab, 1);
   }
 
-  loadItemsByType(type: ItemType) {
+  loadItemsByType(type: ItemType, page: number = 1) {
     this.isLoading = true;
     this.error = '';
 
-    this.itemService.getItemsByType(type).subscribe({
+    this.itemService.getItemsByType(type, page, this.itemsPerPage).subscribe({
       next: (response) => {
         if (response.success) {
+          this.currentItems = response.data;
+          this.totalPages = response.totalPages || 1;
+          this.totalCount = response.totalCount || 0;
+          
+          // Update total counts for tabs
           if (type === 'lost') {
-            this.lostItems = response.data;
+            this.lostTotalCount = response.totalCount || 0;
           } else {
-            this.foundItems = response.data;
+            this.foundTotalCount = response.totalCount || 0;
           }
         } else {
           this.error = response.message || `Failed to load ${type} items`;
@@ -181,53 +197,46 @@ export class AllPostsComponent implements OnInit {
     });
   }
 
-  get filteredLostItems(): Item[] {
-    return this.itemFilterService.filterItems(
-      this.lostItems,
-      this.searchQuery,
-      this.searchCategory,
-      this.searchLocation
-    );
-  }
-
-  get filteredFoundItems(): Item[] {
-    return this.itemFilterService.filterItems(
-      this.foundItems,
-      this.searchQuery,
-      this.searchCategory,
-      this.searchLocation
-    );
-  }
-
-  get visibleItems(): Item[] {
-    const items = this.activeTab === 'lost' 
-      ? this.filteredLostItems 
-      : this.filteredFoundItems;
-    return this.showAll ? items : items.slice(0, 3);
-  }
-
-  get showToggleButton(): boolean {
-    const items = this.activeTab === 'lost' 
-      ? this.filteredLostItems 
-      : this.filteredFoundItems;
-    return items.length > 3;
-  }
-
   getEmptyMessage(): string {
     const hasFilters = this.searchQuery || 
                       this.searchCategory !== 'all' || 
                       this.searchLocation !== 'all';
-    return this.itemFilterService.getEmptyMessage(this.activeTab, hasFilters as boolean);
+    
+    if (hasFilters) {
+      return `No ${this.activeTab} items found matching your search criteria`;
+    }
+    
+    return `No ${this.activeTab} items found`;
   }
 
   onSearch(searchData: { query: string; category: string; location: string }) {
     this.searchQuery = searchData.query;
     this.searchCategory = searchData.category;
     this.searchLocation = searchData.location;
-    this.showAll = false;
+    this.currentPage = 1; // Reset to first page when searching
+    
+    // For now, we'll do client-side filtering since server-side search has route issues
+    // In the future, this should call a search endpoint
+    this.applyFilters();
   }
 
-  toggleShowAll() {
-    this.showAll = !this.showAll;
+  applyFilters() {
+    // Apply client-side filtering to current items
+    if (this.searchQuery || this.searchCategory !== 'all' || this.searchLocation !== 'all') {
+      this.currentItems = this.itemFilterService.filterItems(
+        this.currentItems,
+        this.searchQuery,
+        this.searchCategory,
+        this.searchLocation
+      );
+    } else {
+      // If no filters, reload the current page
+      this.loadItemsByType(this.activeTab, this.currentPage);
+    }
+  }
+
+  onPageChange(page: number) {
+    this.currentPage = page;
+    this.loadItemsByType(this.activeTab, page);
   }
 }

@@ -28,23 +28,37 @@ export class ListingService {
     return headers;
   }
 
-  getUserListings(userId: string): Observable<ListingResponse> {
+  private getDeleteHeaders(): HttpHeaders {
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    
+    if (token) {
+      return headers.set('Authorization', `Bearer ${token}`);
+    }
+    
+    return headers;
+  }
+
+  getUserListings(userId: string, page: number = 1, limit: number = 6): Observable<ListingResponse> {
+    const params = { page: page.toString(), limit: limit.toString() };
     return this.http.get<ListingResponse>(
       `${this.ITEMS_ENDPOINT}/user/${userId}`,
-      { headers: this.getHeaders() }
+      { 
+        headers: this.getHeaders(),
+        params: params
+      }
     );
   }
 
   deleteListing(listingId: string, userId: string): Observable<ListingActionResponse> {
-    const deleteData = { userId };
+    console.log('Deleting listing:', listingId, 'for user:', userId);
+    console.log('Headers:', this.getDeleteHeaders());
     
-    return this.http.request<ListingActionResponse>(
-      'DELETE',
+    return this.http.delete<ListingActionResponse>(
       `${this.ITEMS_ENDPOINT}/${listingId}`,
-      {
-        body: deleteData,
-        headers: this.getHeaders()
-      }
+      { headers: this.getDeleteHeaders() }
     );
   }
 }

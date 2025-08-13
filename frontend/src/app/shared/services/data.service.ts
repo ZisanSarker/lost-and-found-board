@@ -1,6 +1,9 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
+import { AuthService } from '../../core/services/auth.service';
 
 export interface Listing {
   id: string;
@@ -11,6 +14,12 @@ export interface Listing {
   status: 'active' | 'resolved';
   type: 'lost' | 'found';
   image?: string;
+  imageUrl?: string;
+  category?: string;
+  contactInfo?: string;
+  userId?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Message {
@@ -34,8 +43,15 @@ export interface Notification {
 }
 
 export interface ApiResponse {
-  lostItems: any[];
-  foundItems: any[];
+  success: boolean;
+  data: any[];
+  message?: string;
+  count?: number;
+}
+
+export interface DashboardData {
+  lostItems: Listing[];
+  foundItems: Listing[];
   myListings: Listing[];
   messages: Message[];
   notifications: Notification[];
@@ -45,43 +61,91 @@ export interface ApiResponse {
   providedIn: 'root'
 })
 export class DataService {
-  private apiUrl = 'assets/db.json';
-  
-  constructor(private http: HttpClient) {}
+  private readonly baseUrl = environment.apiBaseUrl;
+  private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
 
-  getData(): Observable<ApiResponse> {
-    return this.http.get<ApiResponse>(this.apiUrl);
-  }
-
-  getMyListings(): Observable<Listing[]> {
-    return new Observable(observer => {
-      this.getData().subscribe(data => {
-        observer.next(data.myListings);
-        observer.complete();
-      });
+  private getAuthHeaders(): HttpHeaders {
+    const token = this.authService.getToken();
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
     });
   }
 
-  getMessages(): Observable<Message[]> {
+  getData(): Observable<DashboardData> {
+    // For now, return empty data structure since we're using separate services
     return new Observable(observer => {
-      this.getData().subscribe(data => {
-        observer.next(data.messages);
+      observer.next({
+        lostItems: [],
+        foundItems: [],
+        myListings: [],
+        messages: [],
+        notifications: []
+      });
+      observer.complete();
+    });
+  }
+
+  getMyListings(): Observable<Listing[]> {
+    const user = this.authService.getCurrentUser();
+    if (!user?.id) {
+      return new Observable(observer => {
+        observer.next([]);
         observer.complete();
       });
+    }
+
+    return this.http.get<ApiResponse>(
+      `${this.baseUrl}/api/item/user/${user.id}`,
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      // Transform the response to match the expected format
+      map(response => response.data || [])
+    );
+  }
+
+  getMessages(): Observable<Message[]> {
+    // Placeholder - implement when messaging feature is added
+    return new Observable(observer => {
+      observer.next([]);
+      observer.complete();
     });
   }
 
   getNotifications(): Observable<Notification[]> {
+    // Placeholder - implement when notification feature is added
     return new Observable(observer => {
-      this.getData().subscribe(data => {
-        observer.next(data.notifications);
-        observer.complete();
-      });
+      observer.next([]);
+      observer.complete();
     });
   }
 
-  getDashboardData(): Observable<ApiResponse> {
-    return this.getData();
+  getDashboardData(): Observable<DashboardData> {
+    const user = this.authService.getCurrentUser();
+    if (!user?.id) {
+      return new Observable(observer => {
+        observer.next({
+          lostItems: [],
+          foundItems: [],
+          myListings: [],
+          messages: [],
+          notifications: []
+        });
+        observer.complete();
+      });
+    }
+
+    // Get user's listings for the dashboard
+    return this.getMyListings().pipe(
+      map(myListings => ({
+        lostItems: [],
+        foundItems: [],
+        myListings,
+        messages: [],
+        notifications: []
+      }))
+    );
   }
 
   getUnreadMessagesCount(): number {

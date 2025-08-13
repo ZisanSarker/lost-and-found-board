@@ -9,6 +9,7 @@ import {
   ApiResponse 
 } from '../../shared/models/item.model';
 import { AuthService } from './auth.service';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -39,11 +40,28 @@ export class ItemService {
     });
   }
 
-  // Get items by type (lost or found)
-  getItemsByType(type: ItemType): Observable<ApiResponse<Item[]>> {
+  // Get items by type (lost or found) with pagination
+  getItemsByType(type: ItemType, page: number = 1, limit: number = 6): Observable<ApiResponse<Item[]>> {
+    const params = { page: page.toString(), limit: limit.toString() };
     return this.http.get<ApiResponse<Item[]>>(
       `${this.ITEMS_ENDPOINT}/type/${type}`,
-      { headers: this.getAuthHeaders() }
+      { 
+        headers: this.getAuthHeaders(),
+        params: params
+      }
+    );
+  }
+
+  // Get total counts for both types (for tab headers)
+  getTotalCounts(): Observable<{ lost: number; found: number }> {
+    return forkJoin({
+      lost: this.getItemsByType('lost', 1, 1),
+      found: this.getItemsByType('found', 1, 1)
+    }).pipe(
+      map(response => ({
+        lost: response.lost.totalCount || 0,
+        found: response.found.totalCount || 0
+      }))
     );
   }
 
@@ -88,7 +106,7 @@ export class ItemService {
 
   // Update an item
   updateItem(id: string, data: Partial<ItemFormData>): Observable<ApiResponse<Item>> {
-    return this.http.put<ApiResponse<Item>>(
+    return this.http.patch<ApiResponse<Item>>(
       `${this.ITEMS_ENDPOINT}/${id}`,
       data,
       { headers: this.getAuthHeaders() }

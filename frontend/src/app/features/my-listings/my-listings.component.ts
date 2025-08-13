@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../core/services/auth.service';
 import { ListingService } from '../../core/services/listing.service';
 import { Listing, ListingFilter } from './models/listing.model';
@@ -11,6 +12,7 @@ import { ListingCardComponent } from './components/listing-card/listing-card.com
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { ErrorStateComponent } from '../../shared/components/error-state/error-state.component';
 import { EmptyStateComponent, EmptyStateVariant } from '../../shared/components/empty-state/empty-state.component';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 import { inject } from '@angular/core';
 
 @Component({
@@ -23,6 +25,7 @@ import { inject } from '@angular/core';
     LoadingStateComponent,
     ErrorStateComponent,
     EmptyStateComponent,
+    PaginationComponent,
   ],
   template: `
     <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-orange-200 overflow-hidden">
@@ -144,25 +147,22 @@ import { inject } from '@angular/core';
           </div>
 
           <!-- Listings -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-6 sm:gap-8 md:gap-10 lg:gap-12">
             <app-listing-card
-              *ngFor="let listing of filteredListings"
+              *ngFor="let listing of visibleListings"
               [listing]="listing"
-              (view)="onViewListing(listing.id)"
               (edit)="onEditListing(listing.id)"
               (delete)="onDeleteListing(listing.id)"
             />
           </div>
 
-          <!-- Load More Button (if needed) -->
-          <div *ngIf="hasMoreListings()" class="text-center pt-4 sm:pt-6">
-            <button
-              (click)="loadMoreListings()"
-              class="btn-responsive bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-colors"
-            >
-              Load More Listings
-            </button>
-          </div>
+          <!-- Pagination -->
+          <app-pagination
+            *ngIf="totalPages > 1"
+            [currentPage]="currentPage"
+            [totalPages]="totalPages"
+            (pageChange)="onPageChange($event)"
+          ></app-pagination>
         </div>
       </div>
     </div>
@@ -182,10 +182,17 @@ export class MyListingsComponent implements OnInit, OnDestroy {
   currentTimestamp = new Date().toISOString();
   currentUsername = '';
 
+  // Pagination properties
+  currentPage: number = 1;
+  itemsPerPage: number = 6;
+  totalPages: number = 1;
+  totalCount: number = 0;
+
   private subscription = new Subscription();
   private listingService = inject(ListingService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private toastr = inject(ToastrService);
 
   ngOnInit() {
     this.initializeComponent();
@@ -216,13 +223,15 @@ export class MyListingsComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     this.subscription.add(
-      this.listingService.getUserListings(this.userId!).subscribe({
-                 next: (response) => {
-           this.allListings = response.data || [];
-           this.applyFilters();
-           this.isLoading = false;
-           this.isInitialLoad = false;
-         },
+      this.listingService.getUserListings(this.userId!, this.currentPage, this.itemsPerPage).subscribe({
+        next: (response) => {
+          this.allListings = response.data || [];
+          this.totalPages = response.totalPages || 1;
+          this.totalCount = response.totalCount || 0;
+          this.applyFilters();
+          this.isLoading = false;
+          this.isInitialLoad = false;
+        },
         error: (error) => {
           console.error('Error loading listings:', error);
           this.handleError(error);
@@ -243,6 +252,7 @@ export class MyListingsComponent implements OnInit, OnDestroy {
 
   onFilterChange(filter: ListingFilter) {
     this.activeFilter = filter;
+    this.currentPage = 1; // Reset to first page when filtering
     this.applyFilters();
   }
 
@@ -251,6 +261,7 @@ export class MyListingsComponent implements OnInit, OnDestroy {
   }
 
   onSearch() {
+    this.currentPage = 1; // Reset to first page when searching
     this.applyFilters();
   }
 
@@ -263,17 +274,18 @@ export class MyListingsComponent implements OnInit, OnDestroy {
   }
 
   onDeleteListing(listingId: string) {
-    if (confirm('Are you sure you want to delete this listing?')) {
-      this.listingService.deleteListing(listingId, this.userId!).subscribe({
-        next: () => {
-          this.allListings = this.allListings.filter(l => l.id !== listingId);
-          this.applyFilters();
-        },
-        error: (error) => {
-          console.error('Error deleting listing:', error);
-        }
-      });
-    }
+    this.listingService.deleteListing(listingId, this.userId!).subscribe({
+      next: (response) => {
+        this.allListings = this.allListings.filter(l => l.id !== listingId);
+        this.applyFilters();
+        this.toastr.success('Post deleted successfully!', 'Success');
+      },
+      error: (error) => {
+        console.error('Error deleting listing:', error);
+        const errorMessage = error.error?.message || 'Failed to delete post. Please try again.';
+        this.toastr.error(errorMessage, 'Error');
+      }
+    });
   }
 
   createNewListing(type: 'lost' | 'found') {
@@ -376,6 +388,15 @@ export class MyListingsComponent implements OnInit, OnDestroy {
 
   getSecondaryButtonText(): string {
     return 'Report Found Item';
+  }
+
+  get visibleListings(): Listing[] {
+    return this.filteredListings;
+  }
+
+  onPageChange(page: number) {
+    this.currentPage = page;
+    this.loadListings();
   }
 
   hasMoreListings(): boolean {

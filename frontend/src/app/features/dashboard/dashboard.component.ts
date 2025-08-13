@@ -7,16 +7,14 @@ import { HttpClientModule } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import {
   DataService,
-  Listing,
   Message,
   Notification,
 } from '../../shared/services/data.service';
 import { AuthService } from '../../core/services/auth.service';
-
 import { ProfileSidebarComponent } from '../../shared/components/profile-sidebar/profile-sidebar.component';
 import { NotificationSidebarComponent } from '../../shared/components/notification-sidebar/notification-sidebar.component';
 import { MyListingsComponent } from '../my-listings/my-listings.component';
-import { DashboardHeaderComponent } from '../../shared/components/dashboard-header/dashboard-header.component';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -29,16 +27,11 @@ import { DashboardHeaderComponent } from '../../shared/components/dashboard-head
     ProfileSidebarComponent,
     NotificationSidebarComponent,
     MyListingsComponent,
-    DashboardHeaderComponent,
   ],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
       <div class="container-responsive-lg py-6 sm:py-8 lg:py-12">
-        <!-- Page Header -->
-        <app-dashboard-header
-          (reportLostItem)="onReportLostItem()"
-          (reportFoundItem)="onReportFoundItem()"
-        />
+
 
         <!-- Mobile Navigation Toggle -->
         <div class="lg:hidden mb-6">
@@ -217,7 +210,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.dataService.getDashboardData().subscribe({
         next: (data) => {
           this.isLoading = false;
-          // Handle dashboard data
+          // Dashboard data loaded successfully
         },
         error: (error) => {
           console.error('Dashboard loading error:', error);
@@ -240,15 +233,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.dataService.getUnreadNotificationsCount();
   }
 
-  onReportLostItem() {
-    // Navigate to report lost item page
-    console.log('Report lost item clicked');
-  }
 
-  onReportFoundItem() {
-    // Navigate to report found item page
-    console.log('Report found item clicked');
-  }
 
   toggleMobileSidebar() {
     this.showMobileSidebar = !this.showMobileSidebar;

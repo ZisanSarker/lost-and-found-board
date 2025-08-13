@@ -10,6 +10,7 @@ export interface Listing {
   userId: string;
   imageUrl?: string;
   image?: string;
+  status?: 'active' | 'found' | 'closed' | 'resolved';
   createdAt: string;
   updatedAt: string;
 }
@@ -18,6 +19,11 @@ export interface ListingResponse {
   success: boolean;
   data: Listing[];
   count: number;
+  totalCount?: number;
+  totalPages?: number;
+  currentPage?: number;
+  hasNextPage?: boolean;
+  hasPrevPage?: boolean;
   message?: string;
 }
 

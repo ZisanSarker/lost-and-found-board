@@ -4,6 +4,8 @@ require('colors');
 
 const sanitizeUser = (user) => {
   const userObj = user.toJSON ? user.toJSON() : user.toObject();
+  // Add id field for frontend compatibility
+  userObj.id = userObj._id;
   return userObj;
 };
 

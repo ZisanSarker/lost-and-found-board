@@ -215,10 +215,10 @@ export class SignUpComponent implements OnInit {
       this.isLoading = true;
       const formData = this.form.value;
 
-      this.http.post(`${baseUrl}/auth/register`, formData).subscribe({
+      this.http.post(`${baseUrl}/api/auth/register`, formData).subscribe({
         next: (response: any) => {
-          if (response.success) {
-            this.authService.login(response.data.accessToken, response.data.user);
+          if (response.accessToken && response.user) {
+            this.authService.login(response.accessToken, response.user);
             this.toast.success('Account created successfully!', 'Welcome!');
             this.router.navigate(['/dashboard']);
           } else {
