@@ -23,29 +23,24 @@ export const connectDB = async () => {
     try {
         const conn = await mongoose.connect(process.env.MONGO_URI, connectionOptions);
 
-        console.log(`✓ MongoDB Connected: ${conn.connection.host}`);
-        console.log(`  Database: ${conn.connection.name}`);
-
         // Handle connection events
         mongoose.connection.on('connected', () => {
-            console.log('✓ Mongoose connected to database');
+            // Connected to database
         });
 
         mongoose.connection.on('error', (err) => {
-            console.error(`✗ Mongoose connection error: ${err.message}`);
+            // Connection error
         });
 
         mongoose.connection.on('disconnected', () => {
-            console.warn('⚠ Mongoose disconnected from database');
+            // Disconnected from database
         });
 
         mongoose.connection.on('reconnected', () => {
-            console.log('✓ Mongoose reconnected to database');
+            // Reconnected to database
         });
 
     } catch (error) {
-        console.error(`✗ MongoDB Connection Error: ${error.message}`);
-        console.error(`Stack trace: ${error.stack}`);
         // Exit process with failure
         process.exit(1);
     }
@@ -58,9 +53,7 @@ export const connectDB = async () => {
 export const disconnectDB = async () => {
     try {
         await mongoose.connection.close();
-        console.log('✓ Database connection closed gracefully');
     } catch (error) {
-        console.error(`✗ Error closing database connection: ${error.message}`);
         throw error;
     }
 };

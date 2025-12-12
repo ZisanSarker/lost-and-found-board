@@ -82,10 +82,7 @@ app.use(errorHandler);
 // ============================================
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
-    console.log(`✓ Server running on port ${PORT}`);
-    console.log(`  Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`  API: http://localhost:${PORT}/api`);
-    console.log(`  Health: http://localhost:${PORT}/api/health`);
+    // Server started successfully
 });
 
 // ============================================
@@ -94,27 +91,21 @@ const server = app.listen(PORT, () => {
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', async (err) => {
-    console.error('✗ Unhandled Promise Rejection:', err.message);
-    console.error(err.stack);
     await gracefulShutdown('Unhandled Rejection');
 });
 
 // Handle uncaught exceptions
 process.on('uncaughtException', async (err) => {
-    console.error('✗ Uncaught Exception:', err.message);
-    console.error(err.stack);
     await gracefulShutdown('Uncaught Exception');
 });
 
 // Graceful shutdown on SIGTERM (e.g., Kubernetes, Docker)
 process.on('SIGTERM', async () => {
-    console.log('⚠ SIGTERM signal received');
     await gracefulShutdown('SIGTERM');
 });
 
 // Graceful shutdown on SIGINT (e.g., Ctrl+C)
 process.on('SIGINT', async () => {
-    console.log('⚠ SIGINT signal received');
     await gracefulShutdown('SIGINT');
 });
 
@@ -123,24 +114,17 @@ process.on('SIGINT', async () => {
  * @param {string} signal - The signal that triggered the shutdown
  */
 async function gracefulShutdown(signal) {
-    console.log(`✓ ${signal}: Closing HTTP server...`);
-
     server.close(async () => {
-        console.log('✓ HTTP server closed');
-
         try {
             await disconnectDB();
-            console.log('✓ Graceful shutdown completed');
             process.exit(0);
         } catch (error) {
-            console.error('✗ Error during graceful shutdown:', error.message);
             process.exit(1);
         }
     });
 
     // Force shutdown after 10 seconds
     setTimeout(() => {
-        console.error('✗ Forcing shutdown after timeout');
         process.exit(1);
     }, 10000);
 }

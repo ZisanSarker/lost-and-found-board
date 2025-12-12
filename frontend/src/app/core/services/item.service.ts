@@ -132,9 +132,6 @@ export class ItemService {
   getItemById(id: string): Observable<any> {
     // Check cache first
     const cached = this.itemsCache().get(id);
-    if (cached) {
-      console.log('Returning cached item');
-    }
 
     return this.http.get<any>(`${this.ITEMS_ENDPOINT}/${id}`, {
       headers: this.getAuthHeaders()
