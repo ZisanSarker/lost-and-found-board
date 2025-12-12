@@ -1,164 +1,191 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/user.model');
-const generateTokens = require('../utils/generateTokens');
-const validator = require('validator');
-require('colors');
+import User from '../models/User.model.js';
+import { generateTokens, generateAccessToken, verifyRefreshToken } from '../utils/jwt.util.js';
+import { successResponse, errorResponse } from '../utils/response.util.js';
+import { STATUS_CODES, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../config/constants.js';
+import { asyncHandler } from '../middlewares/error.middleware.js';
 
-const cookieOptions = (maxAge) => ({
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
-  maxAge,
-  path: '/',
+/**
+ * Authentication Controller
+ * Handles user registration, login, logout, and token management
+ */
+
+/**
+ * Register a new user
+ * @route POST /api/auth/register
+ */
+export const register = asyncHandler(async (req, res) => {
+    const { username, email, password } = req.body;
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+
+    if (existingUser) {
+        if (existingUser.email === email) {
+            return errorResponse(
+                res,
+                STATUS_CODES.CONFLICT,
+                ERROR_MESSAGES.EMAIL_ALREADY_EXISTS
+            );
+        }
+        return errorResponse(
+            res,
+            STATUS_CODES.CONFLICT,
+            'Username already taken'
+        );
+    }
+
+    // Create new user
+    const user = await User.create({
+        username,
+        email,
+        password,
+    });
+
+    // Generate tokens
+    const tokens = generateTokens({ id: user._id, email: user.email });
+
+    // Send response
+    successResponse(
+        res,
+        STATUS_CODES.CREATED,
+        SUCCESS_MESSAGES.USER_CREATED,
+        {
+            user: user.getPublicProfile(),
+            ...tokens,
+        }
+    );
 });
 
-const sanitizeUser = (user) => {
-  const userObj = user.toJSON ? user.toJSON() : user.toObject();
-  // Add id field for frontend compatibility
-  userObj.id = userObj._id;
-  return userObj;
-};
+/**
+ * Login user
+ * @route POST /api/auth/login
+ */
+export const login = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
 
-// ─────────── Register ───────────
-exports.register = async (req, res) => {
-  const { username, email, password } = req.body;
-
-  if (!username || !email || !password) {
-    return res
-      .status(400)
-      .json({ message: 'Please provide all required fields' });
-  }
-
-  if (!validator.isEmail(email)) {
-    return res.status(400).json({ message: 'Invalid email address' });
-  }
-
-  // Match the exact regex used in the frontend
-  const strongPasswordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]{8,}$/;
-
-  if (!strongPasswordRegex.test(password)) {
-    return res.status(400).json({
-      message:
-        'Password must be at least 8 characters, include uppercase, lowercase, a number, and a special character.',
-    });
-  }
-
-  try {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'Email already exists' });
-    }
-
-    const newUser = await User.create({ username, email, password });
-
-    const { accessToken, refreshToken } = generateTokens(newUser._id);
-
-    const accessTime = 7 * 24 * 60 * 60 * 1000;
-    const refreshTime = 30 * 24 * 60 * 60 * 1000;
-
-    res.cookie('accessToken', accessToken, cookieOptions(accessTime));
-    res.cookie('refreshToken', refreshToken, cookieOptions(refreshTime));
-
-    res.status(201).json({
-      message: 'Registered successfully',
-      user: sanitizeUser(newUser),
-      accessToken,
-      refreshToken,
-    });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error during registration' });
-  }
-};
-
-
-// ─────────── Login ───────────
-exports.login = async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password)
-    return res
-      .status(400)
-      .json({ message: 'Please provide both email and password' });
-
-  try {
+    // Find user and include password field
     const user = await User.findOne({ email }).select('+password');
 
-    if (!user || !(await user.correctPassword(password, user.password))) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+    if (!user) {
+        return errorResponse(
+            res,
+            STATUS_CODES.UNAUTHORIZED,
+            ERROR_MESSAGES.INVALID_CREDENTIALS
+        );
     }
 
-    user.lastLogin = Date.now();
-    await user.save({ validateBeforeSave: false });
+    // Check if account is active
+    if (!user.isActive) {
+        return errorResponse(
+            res,
+            STATUS_CODES.UNAUTHORIZED,
+            'Account is deactivated'
+        );
+    }
 
-    const { accessToken, refreshToken } = generateTokens(user._id);
+    // Verify password
+    const isPasswordValid = await user.comparePassword(password);
 
-    const accessTime = 7 * 24 * 60 * 60 * 1000;
-    const refreshTime = 30 * 24 * 60 * 60 * 1000;
+    if (!isPasswordValid) {
+        return errorResponse(
+            res,
+            STATUS_CODES.UNAUTHORIZED,
+            ERROR_MESSAGES.INVALID_CREDENTIALS
+        );
+    }
 
-    res.cookie('accessToken', accessToken, cookieOptions(accessTime));
-    res.cookie(
-      'refreshToken',
-      refreshToken,
-      cookieOptions(refreshTime)
+    // Generate tokens
+    const tokens = generateTokens({ id: user._id, email: user.email });
+
+    // Send response
+    successResponse(
+        res,
+        STATUS_CODES.OK,
+        SUCCESS_MESSAGES.LOGIN_SUCCESS,
+        {
+            user: user.getPublicProfile(),
+            ...tokens,
+        }
     );
-    res.status(200).json({
-      message: 'Logged in successfully',
-      user: sanitizeUser(user),
-      accessToken,
-      refreshToken,
-    });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+});
 
-// ─────────── Logout ───────────
-exports.logout = (req, res) => {
-  try {
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
-    res.status(200).json({ message: 'Logged out successfully' });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error during logout' });
-  }
-};
+/**
+ * Get current user profile
+ * @route GET /api/auth/me
+ */
+export const getCurrentUser = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id);
 
-// ─────────── Refresh Token ───────────
-exports.refreshToken = (req, res) => {
-  const refreshTokenFromClient = req.cookies.refreshToken;
+    if (!user) {
+        return errorResponse(
+            res,
+            STATUS_CODES.NOT_FOUND,
+            ERROR_MESSAGES.USER_NOT_FOUND
+        );
+    }
 
-  if (!refreshTokenFromClient) {
-    return res.status(403).json({ message: 'Refresh token required' });
-  }
-
-  try {
-    const decoded = jwt.verify(
-      refreshTokenFromClient,
-      process.env.JWT_REFRESH_SECRET
+    successResponse(
+        res,
+        STATUS_CODES.OK,
+        'User profile retrieved successfully',
+        { user: user.getPublicProfile() }
     );
-    const { accessToken, refreshToken } = generateTokens(decoded.userId);
+});
 
-    res.cookie('accessToken', accessToken, cookieOptions(15 * 60 * 1000));
-    res.cookie(
-      'refreshToken',
-      refreshToken,
-      cookieOptions(7 * 24 * 60 * 60 * 1000)
+/**
+ * Logout user
+ * @route POST /api/auth/logout
+ */
+export const logout = asyncHandler(async (req, res) => {
+    // In a real app, you might want to invalidate the refresh token here
+    // For now, we'll just send a success response
+    successResponse(
+        res,
+        STATUS_CODES.OK,
+        SUCCESS_MESSAGES.LOGOUT_SUCCESS
     );
+});
 
-    res.status(200).json({ message: 'Tokens refreshed successfully' });
-  } catch (err) {
-    res.status(403).json({ message: 'Invalid refresh token' });
-  }
-};
+/**
+ * Refresh access token
+ * @route POST /api/auth/refresh
+ */
+export const refreshToken = asyncHandler(async (req, res) => {
+    const { refreshToken } = req.body;
 
-// ─────────── Get Current User ───────────
-exports.getCurrentUser = async (req, res) => {
-  try {
-    const user = await User.findById(req.userId).select('-password');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!refreshToken) {
+        return errorResponse(
+            res,
+            STATUS_CODES.BAD_REQUEST,
+            'Refresh token is required'
+        );
+    }
 
-    res.status(200).json({ user });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
-  }
+    try {
+        const decoded = verifyRefreshToken(refreshToken);
+
+        // Generate new access token
+        const accessToken = generateAccessToken({ id: decoded.id, email: decoded.email });
+
+        successResponse(
+            res,
+            STATUS_CODES.OK,
+            'Token refreshed successfully',
+            { accessToken }
+        );
+    } catch (error) {
+        return errorResponse(
+            res,
+            STATUS_CODES.UNAUTHORIZED,
+            ERROR_MESSAGES.INVALID_TOKEN
+        );
+    }
+});
+
+export default {
+    register,
+    login,
+    getCurrentUser,
+    logout,
+    refreshToken,
 };

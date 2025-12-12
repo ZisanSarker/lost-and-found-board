@@ -225,7 +225,7 @@ export class MyListingsComponent implements OnInit, OnDestroy {
     this.subscription.add(
       this.listingService.getUserListings(this.userId!, this.currentPage, this.itemsPerPage).subscribe({
         next: (response) => {
-          this.allListings = response.data || [];
+          this.allListings = response.data?.items || [];
           this.totalPages = response.totalPages || 1;
           this.totalCount = response.totalCount || 0;
           this.applyFilters();
@@ -410,15 +410,15 @@ export class MyListingsComponent implements OnInit, OnDestroy {
     if (this.allListings.length === 0) {
       return 'Never';
     }
-    
+
     const latestListing = this.allListings.reduce((latest, current) => {
       return new Date(current.updatedAt) > new Date(latest.updatedAt) ? current : latest;
     });
-    
+
     const date = new Date(latestListing.updatedAt);
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
+
     if (diffInHours < 1) {
       return 'Just now';
     } else if (diffInHours < 24) {

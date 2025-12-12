@@ -208,10 +208,17 @@ export class SignInComponent implements OnInit {
       const formData = this.form.value;
 
       this.http.post(`${baseUrl}/api/auth/login`, formData).subscribe({
-        next: (response: { accessToken?: string; user?: unknown; message?: string }) => {
+        next: (response: {
+          success?: boolean;
+          message?: string;
+          data?: { accessToken?: string; user?: unknown }
+        }) => {
           this.isLoading = false;
-          if (response.accessToken && response.user) {
-            this.authService.login(response.accessToken, response.user as { id: string; username: string; email: string });
+          if (response.data?.accessToken && response.data?.user) {
+            this.authService.login(
+              response.data.accessToken,
+              response.data.user as { id: string; username: string; email: string }
+            );
             this.toast.success('Successfully signed in!', 'Welcome back!');
             this.router.navigate(['/dashboard']);
           } else {

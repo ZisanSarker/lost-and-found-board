@@ -10,7 +10,7 @@ import { AuthService } from './auth.service';
 })
 export class ListingService {
   private readonly API_BASE_URL = environment.apiBaseUrl;
-  private readonly ITEMS_ENDPOINT = `${this.API_BASE_URL}/api/item`;
+  private readonly ITEMS_ENDPOINT = `${this.API_BASE_URL}/api/items`;
 
   private http = inject(HttpClient);
   private authService = inject(AuthService);
@@ -18,15 +18,15 @@ export class ListingService {
   private getHeaders(contentType?: string): HttpHeaders {
     const token = this.authService.getToken();
     const headers = new HttpHeaders();
-    
+
     if (contentType) {
       headers.set('Content-Type', contentType);
     }
-    
+
     if (token) {
       return headers.set('Authorization', `Bearer ${token}`);
     }
-    
+
     return headers;
   }
 
@@ -34,7 +34,7 @@ export class ListingService {
     const params = { page: page.toString(), limit: limit.toString() };
     return this.http.get<ListingResponse>(
       `${this.ITEMS_ENDPOINT}/user/${userId}`,
-      { 
+      {
         headers: this.getHeaders(),
         params: params
       }

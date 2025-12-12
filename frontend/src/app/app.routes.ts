@@ -1,18 +1,18 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';
-import { AuthGuard } from './core/guards/auth.guard';
-import { UnAuthGuard } from './core/guards/unauth.guard';
+import { authGuard } from './core/guards/auth.guard';
+import { unauthGuard } from './core/guards/unauth.guard';
 
 export const routes: Routes = [
   {
     path: 'auth/sign-in',
-    canActivate: [UnAuthGuard],
+    canActivate: [unauthGuard],
     loadComponent: () =>
       import('./features/auth/sign-in/sign-in.component').then((m) => m.SignInComponent),
   },
   {
     path: 'auth/sign-up',
-    canActivate: [UnAuthGuard],
+    canActivate: [unauthGuard],
     loadComponent: () =>
       import('./features/auth/sign-up/sign-up.component').then((m) => m.SignUpComponent),
   },
@@ -47,7 +47,7 @@ export const routes: Routes = [
       },
       {
         path: 'dashboard',
-        canActivate: [AuthGuard],
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./features/dashboard/dashboard.component').then(
             (m) => m.DashboardComponent
@@ -55,7 +55,7 @@ export const routes: Routes = [
       },
       {
         path: 'items',
-        canActivate: [AuthGuard],
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./features/home/components/all-posts/all-posts.component').then(
             (m) => m.AllPostsComponent
@@ -63,7 +63,7 @@ export const routes: Routes = [
       },
       {
         path: 'profile',
-        canActivate: [AuthGuard],
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./features/profile/profile.component').then(
             (m) => m.ProfileComponent
@@ -85,7 +85,7 @@ export const routes: Routes = [
       },
       {
         path: 'repost/:type',
-        canActivate: [AuthGuard],
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./features/report/report.component').then(
             (m) => m.ReportComponent
@@ -93,7 +93,7 @@ export const routes: Routes = [
       },
       {
         path: 'edit-item/:id',
-        canActivate: [AuthGuard],
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./pages/edit-item/edit-item.component').then(
             (m) => m.EditItemComponent
@@ -101,7 +101,7 @@ export const routes: Routes = [
       },
       {
         path: 'item-detail/:id',
-        canActivate: [AuthGuard],
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./pages/item-datail/item-datail.component').then(
             (m) => m.ItemDetailComponent

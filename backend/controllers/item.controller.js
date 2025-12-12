@@ -1,542 +1,229 @@
-const Item = require('../models/item.model');
-exports.createItem = async (req, res) => {
-  try {
+import Item from '../models/Item.model.js';
+import { successResponse, errorResponse, paginatedResponse } from '../utils/response.util.js';
+import { STATUS_CODES, ERROR_MESSAGES, SUCCESS_MESSAGES, PAGINATION } from '../config/constants.js';
+import { asyncHandler } from '../middlewares/error.middleware.js';
+
+/**
+ * Item Controller
+ * Handles CRUD operations for lost and found items
+ */
+
+/**
+ * Get all items with pagination and filtering
+ * @route GET /api/items
+ */
+export const getAllItems = asyncHandler(async (req, res) => {
     const {
-      type,
-      title,
-      description,
-      category,
-      location,
-      date,
-      contactInfo,
-      userId,
-      imageUrl
-    } = req.body;
-
-    if (!type || !title || !description || !category || !location || !date || !contactInfo || !userId) {
-      return res.status(400).json({
-        success: false,
-        message: 'All required fields must be provided'
-      });
-    }
-
-    if (!['lost', 'found'].includes(type)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Type must be either "lost" or "found"'
-      });
-    }
-
-    if (imageUrl && typeof imageUrl !== 'string') {
-      return res.status(400).json({
-        success: false,
-        message: 'imageUrl must be a valid string'
-      });
-    }
-
-    const itemData = {
-      type,
-      title,
-      description,
-      category,
-      location,
-      date,
-      contactInfo,
-      userId
-    };
-
-    if (imageUrl && imageUrl.trim()) {
-      itemData.imageUrl = imageUrl.trim();
-    }
-
-    const newItem = new Item(itemData);
-
-    const savedItem = await newItem.save();
-
-    res.status(201).json({
-      success: true,
-      message: 'Item created successfully',
-      data: savedItem
-    });
-
-  } catch (error) {
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation error',
-        errors: Object.values(error.errors).map(err => err.message)
-      });
-    }
-
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: error.message
-    });
-  }
-};
-
-
-exports.getItemsByType = async (req, res) => {
-  try {
-    const { type } = req.params;
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 6;
-    const skip = (page - 1) * limit;
-
-    if (!['lost', 'found'].includes(type)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid type. Must be either "lost" or "found"'
-      });
-    }
-
-    // Get total count for pagination
-    const totalCount = await Item.countDocuments({ type: type });
-    const totalPages = Math.ceil(totalCount / limit);
-
-    // Get paginated items
-    const items = await Item.find({ type: type })
-      .sort({ createdAt: -1 })
-      .populate('userId', 'name email')
-      .skip(skip)
-      .limit(limit)
-      .lean();
-
-    const transformedItems = items.map(item => ({
-      id: item._id.toString(),
-      title: item.title,
-      description: item.description,
-      category: item.category,
-      location: item.location,
-      date: item.date,
-      type: item.type,
-      contactInfo: item.contactInfo,
-      userId: item.userId,
-      image: item.imageUrl,
-      imageUrl: item.imageUrl,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt
-    }));
-
-    const response = {
-      success: true,
-      data: transformedItems,
-      count: transformedItems.length,
-      totalCount: totalCount,
-      totalPages: totalPages,
-      currentPage: page,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1,
-      message: `${type.charAt(0).toUpperCase() + type.slice(1)} items retrieved successfully`
-    };
-
-    res.status(200).json(response);
-
-  } catch (error) {
-    console.error(`❌ Error fetching ${req.params.type} items:`, error);
-    res.status(500).json({
-      success: false,
-      message: `Failed to fetch ${req.params.type} items`,
-      error: error.message
-    });
-  }
-};
-
-exports.getUserItems = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 6;
-    const skip = (page - 1) * limit;
-
-    if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: 'User ID is required'
-      });
-    }
-
-    // Get total count for pagination
-    const totalCount = await Item.countDocuments({ userId: userId });
-    const totalPages = Math.ceil(totalCount / limit);
-
-    // Get paginated items
-    const items = await Item.find({ userId: userId })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean();
-
-    const transformedItems = items.map(item => ({
-      id: item._id.toString(),
-      title: item.title,
-      description: item.description,
-      category: item.category,
-      location: item.location,
-      date: item.date,
-      type: item.type,
-      contactInfo: item.contactInfo,
-      userId: item.userId,
-      imageUrl: item.imageUrl,
-      status: item.status || 'active',
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt
-    }));
-
-    res.status(200).json({
-      success: true,
-      data: transformedItems,
-      count: transformedItems.length,
-      totalCount: totalCount,
-      totalPages: totalPages,
-      currentPage: page,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1
-    });
-
-  } catch (error) {
-    console.error('Error fetching user items:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch user items',
-      error: error.message
-    });
-  }
-};
-
-exports.getItemById = async (req, res) => {
-  const { id } = req.params;
-
-  if (!id) {
-    return res.status(400).json({ success: false, message: 'Item ID is required' });
-  }
-
-  try {
-    const item = await Item.findById(id);
-
-    if (!item) {
-      return res.status(404).json({ success: false, message: 'Item not found' });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: 'Item retrieved successfully',
-      data: {
-        id: item._id.toString(),
-        title: item.title,
-        description: item.description,
-        category: item.category,
-        location: item.location,
-        date: item.date,
-        type: item.type,
-        contactInfo: item.contactInfo,
-        userId: item.userId,
-        imageUrl: item.imageUrl || null,
-        createdAt: item.createdAt,
-        updatedAt: item.updatedAt
-      }
-    });
-
-  } catch (error) {
-    const isInvalidId = error.name === 'CastError';
-    res.status(isInvalidId ? 400 : 500).json({
-      success: false,
-      message: isInvalidId ? 'Invalid item ID format' : 'Server error while retrieving item',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-};
-
-
-exports.updateItem = async (req, res) => {
-  try {
-    const id = req.params.id || req.body.id;
-    if (!id) {
-      return res.status(400).json({
-        success: false,
-        message: 'Item ID is required'
-      });
-    }
-
-    const {
-      title,
-      category,
-      description,
-      location,
-      date,
-      contactInfo,
-      type
-    } = req.body;
-
-    const userId = req.userId; // Get userId from auth middleware
-
-    const item = await Item.findById(id);
-
-    if (!item) {
-      return res.status(404).json({
-        success: false,
-        message: 'Item not found'
-      });
-    }
-
-    if (item.userId.toString() !== userId) {
-      return res.status(403).json({
-        success: false,
-        message: 'You can only update your own items'
-      });
-    }
-
-    if (title !== undefined) item.title = title;
-    if (category !== undefined) item.category = category;
-    if (description !== undefined) item.description = description;
-    if (location !== undefined) item.location = location;
-    if (date !== undefined) item.date = date;
-    if (contactInfo !== undefined) item.contactInfo = contactInfo;
-    if (type !== undefined) item.type = type;
-
-    const updatedItem = await item.save();
-
-    const transformedItem = {
-      id: updatedItem._id.toString(),
-      title: updatedItem.title,
-      description: updatedItem.description,
-      category: updatedItem.category,
-      location: updatedItem.location,
-      date: updatedItem.date,
-      type: updatedItem.type,
-      contactInfo: updatedItem.contactInfo,
-      userId: updatedItem.userId,
-      imageUrl: updatedItem.imageUrl,
-      createdAt: updatedItem.createdAt,
-      updatedAt: updatedItem.updatedAt
-    };
-
-    res.status(200).json({
-      success: true,
-      message: 'Item updated successfully',
-      data: transformedItem
-    });
-
-  } catch (error) {
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation error',
-        errors: Object.values(error.errors).map(err => err.message)
-      });
-    }
-
-    if (error.name === 'CastError') {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid item ID'
-      });
-    }
-
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: error.message
-    });
-  }
-};
-
-
-exports.deleteItem = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const userId = req.userId; // Get userId from auth middleware instead of req.body
-
-    const item = await Item.findById(id);
-
-    if (!item) {
-      return res.status(404).json({
-        success: false,
-        message: 'Item not found'
-      });
-    }
-
-    if (item.userId.toString() !== userId) {
-      return res.status(403).json({
-        success: false,
-        message: 'You can only delete your own items'
-      });
-    }
-
-    await Item.findByIdAndDelete(id);
-
-    res.status(200).json({
-      success: true,
-      message: 'Item deleted successfully'
-    });
-
-  } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid item ID'
-      });
-    }
-
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: error.message
-    });
-  }
-};
-
-exports.searchItems = async (req, res) => {
-  try {
-    const {
-      query,
-      type,
-      category,
-      location,
-      page = 1,
-      limit = 6
+        page = PAGINATION.DEFAULT_PAGE,
+        limit = PAGINATION.DEFAULT_LIMIT,
+        type,
+        category,
+        status,
+        search,
     } = req.query;
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const pageNum = parseInt(page);
+    const limitNum = Math.min(parseInt(limit), PAGINATION.MAX_LIMIT);
+    const skip = (pageNum - 1) * limitNum;
 
-    // Build search filter
+    // Build filter
     const filter = {};
-
-    // Add type filter if provided
-    if (type && ['lost', 'found'].includes(type)) {
-      filter.type = type;
+    if (type) filter.type = type;
+    if (category) filter.category = category;
+    if (status) filter.status = status;
+    if (search) {
+        filter.$or = [
+            { title: { $regex: search, $options: 'i' } },
+            { description: { $regex: search, $options: 'i' } },
+        ];
     }
 
-    // Add category filter if provided
-    if (category && category !== 'all') {
-      filter.category = category;
-    }
-
-    // Add location filter if provided
-    if (location && location !== 'all') {
-      filter.location = { $regex: location, $options: 'i' };
-    }
-
-    // Add text search if query provided
-    if (query && query.trim()) {
-      const searchRegex = { $regex: query.trim(), $options: 'i' };
-      filter.$or = [
-        { title: searchRegex },
-        { description: searchRegex },
-        { category: searchRegex },
-        { location: searchRegex }
-      ];
-    }
-
-    // Get total count for pagination
-    const totalCount = await Item.countDocuments(filter);
-    const totalPages = Math.ceil(totalCount / parseInt(limit));
-
-    // Get paginated search results
+    // Get items
     const items = await Item.find(filter)
-      .sort({ createdAt: -1 })
-      .populate('userId', 'name email')
-      .skip(skip)
-      .limit(parseInt(limit))
-      .lean();
+        .populate('owner', 'username email avatar')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum);
 
-    const transformedItems = items.map(item => ({
-      id: item._id.toString(),
-      title: item.title,
-      description: item.description,
-      category: item.category,
-      location: item.location,
-      date: item.date,
-      type: item.type,
-      contactInfo: item.contactInfo,
-      userId: item.userId,
-      image: item.imageUrl,
-      imageUrl: item.imageUrl,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt
-    }));
+    const total = await Item.countDocuments(filter);
 
-    res.status(200).json({
-      success: true,
-      data: transformedItems,
-      count: transformedItems.length,
-      totalCount: totalCount,
-      totalPages: totalPages,
-      currentPage: parseInt(page),
-      hasNextPage: parseInt(page) < totalPages,
-      hasPrevPage: parseInt(page) > 1,
-      searchParams: {
-        query: query || null,
-        type: type || null,
-        category: category || null,
-        location: location || null
-      },
-      message: `Search completed successfully. Found ${totalCount} items.`
-    });
+    paginatedResponse(res, items, pageNum, limitNum, total);
+});
 
-  } catch (error) {
-    console.error('Error searching items:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to search items',
-      error: error.message
-    });
-  }
-};
+/**
+ * Get item by ID
+ * @route GET /api/items/:id
+ */
+export const getItemById = asyncHandler(async (req, res) => {
+    const item = await Item.findById(req.params.id)
+        .populate('owner', 'username email avatar phone')
+        .populate('claimedBy', 'username email');
 
-exports.getAllItems = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 6;
-    const skip = (page - 1) * limit;
+    if (!item) {
+        return errorResponse(
+            res,
+            STATUS_CODES.NOT_FOUND,
+            ERROR_MESSAGES.ITEM_NOT_FOUND
+        );
+    }
 
-    // Get total count for pagination
-    const totalCount = await Item.countDocuments({});
-    const totalPages = Math.ceil(totalCount / limit);
+    successResponse(
+        res,
+        STATUS_CODES.OK,
+        'Item retrieved successfully',
+        { item }
+    );
+});
 
-    // Get paginated items
-    const items = await Item.find({})
-      .sort({ createdAt: -1 })
-      .populate('userId', 'name email')
-      .skip(skip)
-      .limit(limit)
-      .lean();
+/**
+ * Create new item
+ * @route POST /api/items
+ */
+export const createItem = asyncHandler(async (req, res) => {
+    const itemData = {
+        ...req.body,
+        owner: req.user._id,
+    };
 
-    const transformedItems = items.map(item => ({
-      id: item._id.toString(),
-      title: item.title,
-      description: item.description,
-      category: item.category,
-      location: item.location,
-      date: item.date,
-      type: item.type,
-      contactInfo: item.contactInfo,
-      userId: item.userId,
-      image: item.imageUrl,
-      imageUrl: item.imageUrl,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt
-    }));
+    const item = await Item.create(itemData);
 
-    res.status(200).json({
-      success: true,
-      data: transformedItems,
-      count: transformedItems.length,
-      totalCount: totalCount,
-      totalPages: totalPages,
-      currentPage: page,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1,
-      message: 'All items retrieved successfully'
-    });
+    // Populate owner info
+    await item.populate('owner', 'username email avatar');
 
-  } catch (error) {
-    console.error('Error fetching all items:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch all items',
-      error: error.message
-    });
-  }
+    successResponse(
+        res,
+        STATUS_CODES.CREATED,
+        SUCCESS_MESSAGES.ITEM_CREATED,
+        { item }
+    );
+});
+
+/**
+ * Update item
+ * @route PUT /api/items/:id
+ */
+export const updateItem = asyncHandler(async (req, res) => {
+    const item = await Item.findById(req.params.id);
+
+    if (!item) {
+        return errorResponse(
+            res,
+            STATUS_CODES.NOT_FOUND,
+            ERROR_MESSAGES.ITEM_NOT_FOUND
+        );
+    }
+
+    // Check if user is the owner
+    if (item.owner.toString() !== req.user._id.toString()) {
+        return errorResponse(
+            res,
+            STATUS_CODES.FORBIDDEN,
+            ERROR_MESSAGES.UNAUTHORIZED_ITEM_ACCESS
+        );
+    }
+
+    // Update item
+    const updatedItem = await Item.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        { new: true, runValidators: true }
+    ).populate('owner', 'username email avatar');
+
+    successResponse(
+        res,
+        STATUS_CODES.OK,
+        SUCCESS_MESSAGES.ITEM_UPDATED,
+        { item: updatedItem }
+    );
+});
+
+/**
+ * Delete item
+ * @route DELETE /api/items/:id
+ */
+export const deleteItem = asyncHandler(async (req, res) => {
+    const item = await Item.findById(req.params.id);
+
+    if (!item) {
+        return errorResponse(
+            res,
+            STATUS_CODES.NOT_FOUND,
+            ERROR_MESSAGES.ITEM_NOT_FOUND
+        );
+    }
+
+    // Check if user is the owner
+    if (item.owner.toString() !== req.user._id.toString()) {
+        return errorResponse(
+            res,
+            STATUS_CODES.FORBIDDEN,
+            ERROR_MESSAGES.UNAUTHORIZED_ITEM_ACCESS
+        );
+    }
+
+    await item.deleteOne();
+
+    successResponse(
+        res,
+        STATUS_CODES.OK,
+        SUCCESS_MESSAGES.ITEM_DELETED
+    );
+});
+
+/**
+ * Get user's items
+ * @route GET /api/items/user/:userId
+ */
+export const getUserItems = asyncHandler(async (req, res) => {
+    const items = await Item.findByUser(req.params.userId);
+
+    successResponse(
+        res,
+        STATUS_CODES.OK,
+        'User items retrieved successfully',
+        { items }
+    );
+});
+
+/**
+ * Mark item as claimed
+ * @route POST /api/items/:id/claim
+ */
+export const claimItem = asyncHandler(async (req, res) => {
+    const item = await Item.findById(req.params.id);
+
+    if (!item) {
+        return errorResponse(
+            res,
+            STATUS_CODES.NOT_FOUND,
+            ERROR_MESSAGES.ITEM_NOT_FOUND
+        );
+    }
+
+    if (!item.isClaimable) {
+        return errorResponse(
+            res,
+            STATUS_CODES.BAD_REQUEST,
+            'Item is not claimable'
+        );
+    }
+
+    await item.markAsClaimed(req.user._id);
+
+    successResponse(
+        res,
+        STATUS_CODES.OK,
+        'Item marked as claimed successfully',
+        { item }
+    );
+});
+
+export default {
+    getAllItems,
+    getItemById,
+    createItem,
+    updateItem,
+    deleteItem,
+    getUserItems,
+    claimItem,
 };

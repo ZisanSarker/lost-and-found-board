@@ -13,8 +13,9 @@ import { ConfirmationModalComponent, ConfirmationModalData } from '../../../../s
       <!-- Image Container with Responsive Size -->
       <div class="relative h-32 sm:h-40 md:h-48 w-full overflow-visible bg-gray-200">
         <img 
-          [src]="listing.imageUrl || listing.image || 'assets/package_placeholder.jpg'" 
+          [src]="getImageUrl()" 
           [alt]="listing.title"
+          (error)="onImageError($event)"
           class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
         
@@ -247,6 +248,15 @@ export class ListingCardComponent {
       return 'bg-gradient-to-r from-red-700 to-red-600 text-white px-2 py-1 rounded-md text-xs font-medium';
     }
     return 'bg-gradient-to-r from-green-700 to-green-600 text-white px-2 py-1 rounded-md text-xs font-medium';
+  }
+
+  getImageUrl(): string {
+    // Check for images array first (from backend)
+    if (this.listing.images && Array.isArray(this.listing.images) && this.listing.images.length > 0) {
+      return this.listing.images[0];
+    }
+    // Fallback to imageUrl or image fields
+    return this.listing.imageUrl || this.listing.image || 'assets/package_placeholder.jpg';
   }
 
   onImageError(event: Event): void {

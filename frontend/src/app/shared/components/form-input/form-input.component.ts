@@ -38,7 +38,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
       
       <!-- Error Message -->
       <div
-        *ngIf="control?.touched && control?.invalid"
+        *ngIf="control.touched && control.invalid"
         class="mt-2 flex items-start gap-2 text-sm text-red-600 animate-slide-down"
       >
         <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

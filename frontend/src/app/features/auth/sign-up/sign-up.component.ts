@@ -283,10 +283,17 @@ export class SignUpComponent implements OnInit {
       const formData = this.form.value;
 
       this.http.post(`${baseUrl}/api/auth/register`, formData).subscribe({
-        next: (response: { accessToken?: string; user?: unknown; message?: string }) => {
+        next: (response: {
+          success?: boolean;
+          message?: string;
+          data?: { accessToken?: string; user?: unknown }
+        }) => {
           this.isLoading = false;
-          if (response.accessToken && response.user) {
-            this.authService.login(response.accessToken, response.user as { id: string; username: string; email: string });
+          if (response.data?.accessToken && response.data?.user) {
+            this.authService.login(
+              response.data.accessToken,
+              response.data.user as { id: string; username: string; email: string }
+            );
             this.toast.success('Account created successfully!', 'Welcome!');
             this.router.navigate(['/dashboard']);
           } else {
@@ -307,7 +314,7 @@ export class SignUpComponent implements OnInit {
   nameValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
-    
+
     const nameRegex = /^[a-zA-Z\s]+$/;
     if (!nameRegex.test(value)) {
       return { invalidName: true };
@@ -318,13 +325,13 @@ export class SignUpComponent implements OnInit {
   passwordValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
-    
+
     const hasUpperCase = /[A-Z]/.test(value);
     const hasLowerCase = /[a-z]/.test(value);
     const hasNumbers = /\d/.test(value);
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(value);
     const isLongEnough = value.length >= 8;
-    
+
     if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar || !isLongEnough) {
       return { invalidPassword: true };
     }
@@ -334,7 +341,7 @@ export class SignUpComponent implements OnInit {
   passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
     const password = group.get('password');
     const confirmPassword = group.get('confirmPassword');
-    
+
     if (password && confirmPassword && password.value !== confirmPassword.value) {
       return { passwordMismatch: true };
     }

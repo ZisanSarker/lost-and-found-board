@@ -22,7 +22,7 @@ import { NgIf } from '@angular/common';
     <div class="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
       <app-hero></app-hero>
 
-      <ng-container *ngIf="isLoggedIn()">
+      <ng-container *ngIf="isAuthenticated()">
         <div class="container-responsive section-padding-sm">
           <app-all-posts></app-all-posts>
         </div>
@@ -39,13 +39,12 @@ import { NgIf } from '@angular/common';
   `,
 })
 export class HomeComponent {
-  private authService = inject(AuthService);
+  private readonly authService = inject(AuthService);
+
+  // Expose isAuthenticated signal
+  protected readonly isAuthenticated = this.authService.isAuthenticated;
 
   handleSearch(): void {
     // Search functionality handled by child components
-  }
-
-  isLoggedIn(): boolean {
-    return this.authService.isLoggedIn();
   }
 }

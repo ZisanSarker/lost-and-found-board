@@ -1,18 +1,20 @@
-// unauth.guard.ts
-import { Injectable, inject } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
-@Injectable({ providedIn: 'root' })
-export class UnAuthGuard implements CanActivate {
-  private authService = inject(AuthService);
-  private router = inject(Router);
+/**
+ * Unauthenticated Guard
+ * Prevents authenticated users from accessing auth pages (like login/register)
+ * Uses modern functional guard approach (Angular 21)
+ */
+export const unauthGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
 
-  canActivate(): boolean {
-    if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/home']);
-      return false;
-    }
-    return true;
+  if (authService.isAuthenticated()) {
+    router.navigate(['/home']);
+    return false;
   }
-}
+
+  return true;
+};

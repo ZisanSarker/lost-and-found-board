@@ -133,16 +133,18 @@ export class ProfileSidebarComponent implements OnInit {
     this.error.set('');
 
     this.http
-      .get<ApiResponse>(`${baseUrl}/api/profile`, {
+      .get<{ success: boolean; message?: string; data?: { user: UserProfile } }>(`${baseUrl}/api/auth/me`, {
         headers: this.getAuthHeaders(),
       })
       .subscribe({
         next: (response) => {
-          const userWithDate = {
-            ...response.user,
-            joinDate: new Date(response.user.joinDate),
-          };
-          this.userProfile.set(userWithDate);
+          if (response.data?.user) {
+            const userWithDate = {
+              ...response.data.user,
+              joinDate: response.data.user.createdAt ? new Date(response.data.user.createdAt) : new Date(),
+            };
+            this.userProfile.set(userWithDate);
+          }
           this.loading.set(false);
         },
         error: (err) => {
@@ -167,12 +169,12 @@ export class ProfileSidebarComponent implements OnInit {
 
   getInitials(username: string): string {
     if (!username) return 'U';
-    
+
     const words = username.trim().split(' ');
     if (words.length === 1) {
       return words[0].charAt(0).toUpperCase();
     }
-    
+
     return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
   }
 

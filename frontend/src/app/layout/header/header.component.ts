@@ -1,4 +1,5 @@
 import { Component, inject, signal, HostListener } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
@@ -53,7 +54,7 @@ import { Observable } from 'rxjs';
                     <img 
                       *ngIf="user.avatar; else avatarFallback"
                       [src]="user.avatar" 
-                      [alt]="user.username || user.name || 'User'"
+                      [alt]="user.username || 'User'"
                       class="w-full h-full object-cover"
                     />
                     <ng-template #avatarFallback>
@@ -81,7 +82,7 @@ import { Observable } from 'rxjs';
                 >
                   <!-- User Info -->
                   <div class="px-4 py-3 border-b border-gray-100">
-                    <p class="text-sm font-medium text-gray-900 truncate">{{ user.username || user.name || 'User' }}</p>
+                    <p class="text-sm font-medium text-gray-900 truncate">{{ user.username || 'User' }}</p>
                     <p class="text-xs text-gray-500 truncate">{{ user.email }}</p>
                   </div>
                   
@@ -133,7 +134,7 @@ import { Observable } from 'rxjs';
                     <img 
                       *ngIf="user.avatar; else mobileAvatarFallback"
                       [src]="user.avatar" 
-                      [alt]="user.username || user.name || 'User'"
+                      [alt]="user.username || 'User'"
                       class="w-full h-full object-cover"
                     />
                     <ng-template #mobileAvatarFallback>
@@ -282,8 +283,8 @@ import { Observable } from 'rxjs';
 })
 export class HeaderComponent {
   private authService = inject(AuthService);
-  user$: Observable<any | null> = this.authService.user$;
-  
+  user$ = toObservable(this.authService.user);
+
   isDropdownOpen = signal(false);
   isMobileMenuOpen = signal(false);
   showLogoutModal = signal(false);

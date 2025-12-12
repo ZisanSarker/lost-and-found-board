@@ -47,6 +47,7 @@ import { ImageFile } from '../../models/item.model';
           type="file"
           accept="image/*"
           class="hidden"
+          (change)="onFileSelected($event)"
           #fileInput
         />
         <button
@@ -90,6 +91,7 @@ import { ImageFile } from '../../models/item.model';
           type="file"
           accept="image/*"
           class="hidden"
+          (change)="onFileSelected($event)"
           #fileInput
         />
       </div>
@@ -142,7 +144,7 @@ export class ImageUploadComponent {
   @Input() selectedImage: ImageFile | null = null;
   @Input() uploadedImageUrl = '';
   @Input() isUploading = false;
-  
+
   @Output() imageSelected = new EventEmitter<ImageFile>();
   @Output() imageRemoved = new EventEmitter<void>();
   @Output() uploadedImageRemoved = new EventEmitter<void>();
@@ -150,7 +152,32 @@ export class ImageUploadComponent {
   private cloudinaryService = inject(CloudinaryService);
   private toastr = inject(ToastrService);
 
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
 
+    if (!file) return;
+
+    // Validate file
+    if (!this.cloudinaryService.isValidImageFile(file)) {
+      this.toastr.error('Please select a valid image file (JPEG, PNG, GIF, WebP) under 5MB', 'Invalid File');
+      return;
+    }
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const imageFile: ImageFile = {
+        file,
+        preview: e.target?.result as string
+      };
+      this.imageSelected.emit(imageFile);
+    };
+    reader.readAsDataURL(file);
+
+    // Reset input
+    input.value = '';
+  }
 
   getFileSize(bytes: number): string {
     return this.cloudinaryService.getReadableFileSize(bytes);

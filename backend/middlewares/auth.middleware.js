@@ -1,56 +1,132 @@
-const jwt = require('jsonwebtoken');
+import { verifyAccessToken } from '../utils/jwt.util.js';
+import User from '../models/User.model.js';
+import { errorResponse } from '../utils/response.util.js';
+import { STATUS_CODES, ERROR_MESSAGES } from '../config/constants.js';
 
-const authMiddleware = (req, res, next) => {
-  try {
-    const accessToken = req.cookies.accessToken;
-    const authHeader = req.headers.authorization;
-    const headerToken = authHeader?.split(' ')[1];
-    const token = accessToken || headerToken;
+/**
+ * Authentication Middleware
+ * Verifies JWT tokens and attaches user to request
+ */
 
-    if (!token) {
-      return res.status(401).json({ message: 'Access denied. No token provided.' });
-    }
-
+/**
+ * Middleware to verify JWT token and authenticate user
+ */
+export const authenticate = async (req, res, next) => {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-      req.userId = decoded.userId;
-      return next();
-    } catch (tokenError) {
-      // Attempt to verify refresh token
-      const refreshTokenCookie = req.cookies.refreshToken;
-      const refreshTokenHeader = authHeader?.split(' ')[2];
-      const refreshToken = refreshTokenHeader || refreshTokenCookie;
+        // Get token from header
+        const authHeader = req.headers.authorization;
 
-      if (!refreshToken) {
-        return res.status(403).json({ message: 'Refresh token required.' });
-      }
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return errorResponse(
+                res,
+                STATUS_CODES.UNAUTHORIZED,
+                ERROR_MESSAGES.UNAUTHORIZED
+            );
+        }
 
-      try {
-        const decodedRefresh = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-        req.userId = decodedRefresh.userId;
+        // Extract token
+        const token = authHeader.split(' ')[1];
 
-        // Optionally generate a new access token
-        const newAccessToken = jwt.sign(
-          { userId: req.userId },
-          process.env.JWT_ACCESS_SECRET,
-          { expiresIn: '15m' }
+        if (!token) {
+            return errorResponse(
+                res,
+                STATUS_CODES.UNAUTHORIZED,
+                ERROR_MESSAGES.INVALID_TOKEN
+            );
+        }
+
+        // Verify token
+        const decoded = verifyAccessToken(token);
+
+        // Find user
+        const user = await User.findById(decoded.id).select('-password');
+
+        if (!user || !user.isActive) {
+            return errorResponse(
+                res,
+                STATUS_CODES.UNAUTHORIZED,
+                ERROR_MESSAGES.USER_NOT_FOUND
+            );
+        }
+
+        // Attach user to request
+        req.user = user;
+        next();
+    } catch (error) {
+        if (error.message.includes('expired')) {
+            return errorResponse(
+                res,
+                STATUS_CODES.UNAUTHORIZED,
+                ERROR_MESSAGES.TOKEN_EXPIRED
+            );
+        }
+        return errorResponse(
+            res,
+            STATUS_CODES.UNAUTHORIZED,
+            ERROR_MESSAGES.INVALID_TOKEN
         );
-
-        res.cookie('accessToken', newAccessToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
-          maxAge: 15 * 60 * 1000,
-        });
-
-        return next();
-      } catch (refreshTokenError) {
-        return res.status(403).json({ message: 'Invalid refresh token. Authentication required.' });
-      }
     }
-  } catch (err) {
-    return res.status(500).json({ message: 'Internal server error.', error: err.message });
-  }
 };
 
-module.exports = authMiddleware;
+/**
+ * Middleware to check if user is admin
+ */
+export const isAdmin = (req, res, next) => {
+    if (!req.user) {
+        return errorResponse(
+            res,
+            STATUS_CODES.UNAUTHORIZED,
+            ERROR_MESSAGES.UNAUTHORIZED
+        );
+    }
+
+    if (req.user.role !== 'admin') {
+        return errorResponse(
+            res,
+            STATUS_CODES.FORBIDDEN,
+            'Admin access required'
+        );
+    }
+
+    next();
+};
+
+/**
+ * Optional authentication - continues even if no token provided
+ */
+export const optionalAuth = async (req, res, next) => {
+    try {
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return next(); // Continue without user
+        }
+
+        const token = authHeader.split(' ')[1];
+
+        if (!token) {
+            return next(); // Continue without user
+        }
+
+        // Verify token
+        const decoded = verifyAccessToken(token);
+
+        // Find user
+        const user = await User.findById(decoded.id).select('-password');
+
+        if (user && user.isActive) {
+            req.user = user; // Attach user if found
+        }
+
+        next();
+    } catch (error) {
+        // Continue without user even if token is invalid
+        next();
+    }
+};
+
+export default {
+    authenticate,
+    isAdmin,
+    optionalAuth,
+};

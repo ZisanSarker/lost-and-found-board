@@ -8,8 +8,9 @@ export interface Listing {
   type: 'lost' | 'found';
   contactInfo: string;
   userId: string;
-  imageUrl?: string;
-  image?: string;
+  images?: string[];  // Array of image URLs from backend
+  imageUrl?: string;  // Legacy field
+  image?: string;     // Legacy field
   status?: 'active' | 'found' | 'closed' | 'resolved';
   createdAt: string;
   updatedAt: string;
@@ -17,14 +18,15 @@ export interface Listing {
 
 export interface ListingResponse {
   success: boolean;
-  data: Listing[];
-  count: number;
+  message?: string;
+  data: {
+    items: Listing[];
+  };
   totalCount?: number;
   totalPages?: number;
   currentPage?: number;
   hasNextPage?: boolean;
   hasPrevPage?: boolean;
-  message?: string;
 }
 
 export interface ListingActionResponse {

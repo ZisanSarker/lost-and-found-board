@@ -97,7 +97,7 @@ export class DataService {
     }
 
     return this.http.get<ApiResponse<Listing[]>>(
-      `${this.baseUrl}/api/item/user/${user.id}`,
+      `${this.baseUrl}/api/items/user/${user.id}`,
       { headers: this.getAuthHeaders() }
     ).pipe(
       // Transform the response to match the expected format
