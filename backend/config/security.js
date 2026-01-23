@@ -1,6 +1,5 @@
 import helmet from 'helmet';
 import cors from 'cors';
-import rateLimit from 'express-rate-limit';
 
 /**
  * Security Configuration
@@ -12,7 +11,7 @@ import rateLimit from 'express-rate-limit';
  * Allows requests from specified frontend URL
  */
 export const corsOptions = {
-    origin: process.env.CLIENT_URL || 'http://localhost:4200',
+    origin: process.env.CLIENT_URL || 'http://localhost:3000',
     credentials: true,
     optionsSuccessStatus: 200,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -35,31 +34,6 @@ export const helmetOptions = {
 };
 
 /**
- * Rate Limiter Configuration
- * Prevents brute-force attacks
- */
-export const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per windowMs
-    message: 'Too many requests from this IP, please try again later.',
-    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-});
-
-/**
- * Auth Rate Limiter Configuration
- * Stricter rate limiting for authentication endpoints
- */
-export const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // Limit each IP to 5 login requests per windowMs
-    message: 'Too many login attempts, please try again later.',
-    standardHeaders: true,
-    legacyHeaders: false,
-    skipSuccessfulRequests: true, // Don't count successful requests
-});
-
-/**
  * Session Configuration
  */
 export const sessionOptions = {
@@ -77,7 +51,5 @@ export const sessionOptions = {
 export default {
     corsOptions,
     helmetOptions,
-    limiter,
-    authLimiter,
     sessionOptions,
 };

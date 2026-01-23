@@ -1,5 +1,5 @@
+import 'dotenv/config';
 import express from 'express';
-import dotenv from 'dotenv';
 import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
@@ -7,16 +7,13 @@ import cookieParser from 'cookie-parser';
 
 // Import configurations
 import { connectDB, disconnectDB } from './config/database.js';
-import { corsOptions, limiter } from './config/security.js';
+import { corsOptions } from './config/security.js';
 
 // Import routes
 import apiRoutes from './routes/index.js';
 
 // Import middleware
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware.js';
-
-// Load environment variables
-dotenv.config();
 
 // Create Express app
 const app = express();
@@ -33,9 +30,6 @@ app.use(morgan('dev')); // HTTP request logging
 app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded bodies
 app.use(cookieParser()); // Parse cookies
-
-// Apply rate limiting to API routes
-app.use('/api', limiter);
 
 // ============================================
 // Routes
@@ -82,7 +76,9 @@ app.use(errorHandler);
 // ============================================
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
-    // Server started successfully
+    console.log(`\n✓ Server running on http://localhost:${PORT}`);
+    console.log(`  Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`  Client URL: ${process.env.CLIENT_URL || 'not set'}\n`);
 });
 
 // ============================================
@@ -114,11 +110,14 @@ process.on('SIGINT', async () => {
  * @param {string} signal - The signal that triggered the shutdown
  */
 async function gracefulShutdown(signal) {
+    console.log(`\n⚠ ${signal} received. Shutting down gracefully...`);
     server.close(async () => {
         try {
             await disconnectDB();
+            console.log('✓ Server closed');
             process.exit(0);
         } catch (error) {
+            console.error('✗ Error during shutdown:', error.message);
             process.exit(1);
         }
     });

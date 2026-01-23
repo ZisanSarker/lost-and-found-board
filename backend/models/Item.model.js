@@ -54,19 +54,8 @@ const itemSchema = new mongoose.Schema(
             default: ITEM_STATUS.ACTIVE,
         },
         contactInfo: {
-            name: {
-                type: String,
-                trim: true,
-            },
-            phone: {
-                type: String,
-                trim: true,
-            },
-            email: {
-                type: String,
-                trim: true,
-                lowercase: true,
-            },
+            type: String,
+            trim: true,
         },
         owner: {
             type: mongoose.Schema.Types.ObjectId,

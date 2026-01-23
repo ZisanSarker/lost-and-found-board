@@ -22,26 +22,22 @@ const connectionOptions = {
 export const connectDB = async () => {
     try {
         const conn = await mongoose.connect(process.env.MONGO_URI, connectionOptions);
-
-        // Handle connection events
-        mongoose.connection.on('connected', () => {
-            // Connected to database
-        });
+        console.log(`✓ MongoDB connected: ${conn.connection.host}/${conn.connection.name}`);
 
         mongoose.connection.on('error', (err) => {
-            // Connection error
+            console.error(`✗ MongoDB error: ${err.message}`);
         });
 
         mongoose.connection.on('disconnected', () => {
-            // Disconnected from database
+            console.log('⚠ MongoDB disconnected');
         });
 
         mongoose.connection.on('reconnected', () => {
-            // Reconnected to database
+            console.log('✓ MongoDB reconnected');
         });
 
     } catch (error) {
-        // Exit process with failure
+        console.error(`✗ MongoDB connection failed: ${error.message}`);
         process.exit(1);
     }
 };

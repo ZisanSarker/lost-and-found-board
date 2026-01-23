@@ -3,9 +3,16 @@ import { body } from 'express-validator';
 import {
     register,
     login,
+    googleAuth,
+    githubAuth,
+    githubCallback,
     getCurrentUser,
     logout,
     refreshToken,
+    forgotPassword,
+    resetPassword,
+    verifyEmail,
+    resendVerification,
 } from '../controllers/auth.controller.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
 import validate from '../middlewares/validation.middleware.js';
@@ -22,20 +29,18 @@ router.post(
     [
         body('username')
             .trim()
-            .isLength({ min: 3, max: 30 })
-            .withMessage('Username must be between 3 and 30 characters')
-            .matches(/^[a-zA-Z0-9_-]+$/)
-            .withMessage('Username can only contain letters, numbers, underscores, and hyphens'),
+            .isLength({ min: 2, max: 50 })
+            .withMessage('Name must be between 2 and 50 characters'),
         body('email')
             .trim()
             .isEmail()
             .withMessage('Please provide a valid email')
             .normalizeEmail(),
         body('password')
-            .isLength({ min: 8 })
-            .withMessage('Password must be at least 8 characters long')
-            .matches(/^(?=.*[A-Za-z])(?=.*\d)/)
-            .withMessage('Password must contain at least one letter and one number'),
+            .notEmpty()
+            .withMessage('Password is required')
+            .isLength({ min: 3 })
+            .withMessage('Password must be at least 3 characters'),
         validate,
     ],
     register
@@ -61,6 +66,27 @@ router.post(
     ],
     login
 );
+
+/**
+ * @route   POST /api/auth/google
+ * @desc    Authenticate with Google
+ * @access  Public
+ */
+router.post('/google', googleAuth);
+
+/**
+ * @route   GET /api/auth/github
+ * @desc    Redirect to GitHub OAuth
+ * @access  Public
+ */
+router.get('/github', githubAuth);
+
+/**
+ * @route   GET /api/auth/github/callback
+ * @desc    GitHub OAuth callback
+ * @access  Public
+ */
+router.get('/github/callback', githubCallback);
 
 /**
  * @route   GET /api/auth/me
@@ -91,5 +117,58 @@ router.post(
     ],
     refreshToken
 );
+
+/**
+ * @route   POST /api/auth/forgot-password
+ * @desc    Send password reset email
+ * @access  Public
+ */
+router.post(
+    '/forgot-password',
+    [
+        body('email')
+            .trim()
+            .isEmail()
+            .withMessage('Please provide a valid email')
+            .normalizeEmail(),
+        validate,
+    ],
+    forgotPassword
+);
+
+/**
+ * @route   POST /api/auth/reset-password
+ * @desc    Reset password with token
+ * @access  Public
+ */
+router.post(
+    '/reset-password',
+    [
+        body('token')
+            .notEmpty()
+            .withMessage('Reset token is required'),
+        body('password')
+            .notEmpty()
+            .withMessage('Password is required')
+            .isLength({ min: 3 })
+            .withMessage('Password must be at least 3 characters'),
+        validate,
+    ],
+    resetPassword
+);
+
+/**
+ * @route   GET /api/auth/verify-email/:token
+ * @desc    Verify email address
+ * @access  Public
+ */
+router.get('/verify-email/:token', verifyEmail);
+
+/**
+ * @route   POST /api/auth/resend-verification
+ * @desc    Resend email verification
+ * @access  Private
+ */
+router.post('/resend-verification', authenticate, resendVerification);
 
 export default router;

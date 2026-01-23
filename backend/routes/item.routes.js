@@ -8,6 +8,8 @@ import {
     deleteItem,
     getUserItems,
     claimItem,
+    resolveItem,
+    getStats,
 } from '../controllers/item.controller.js';
 import { authenticate, optionalAuth } from '../middlewares/auth.middleware.js';
 import validate from '../middlewares/validation.middleware.js';
@@ -20,6 +22,13 @@ const router = express.Router();
  * @access  Public
  */
 router.get('/', optionalAuth, getAllItems);
+
+/**
+ * @route   GET /api/items/stats
+ * @desc    Get platform statistics
+ * @access  Public
+ */
+router.get('/stats', getStats);
 
 /**
  * @route   GET /api/items/user/:userId
@@ -108,5 +117,12 @@ router.delete('/:id', authenticate, deleteItem);
  * @access  Private
  */
 router.post('/:id/claim', authenticate, claimItem);
+
+/**
+ * @route   PATCH /api/items/:id/resolve
+ * @desc    Mark item as resolved
+ * @access  Private (Owner only)
+ */
+router.patch('/:id/resolve', authenticate, resolveItem);
 
 export default router;

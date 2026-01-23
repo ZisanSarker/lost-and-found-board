@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import validator from 'validator';
 
@@ -11,11 +12,10 @@ const userSchema = new mongoose.Schema(
     {
         username: {
             type: String,
-            required: [true, 'Username is required'],
+            required: [true, 'Name is required'],
             trim: true,
-            minlength: [3, 'Username must be at least 3 characters long'],
-            maxlength: [30, 'Username cannot exceed 30 characters'],
-            unique: true,
+            minlength: [2, 'Name must be at least 2 characters long'],
+            maxlength: [50, 'Name cannot exceed 50 characters'],
         },
         email: {
             type: String,
@@ -27,9 +27,22 @@ const userSchema = new mongoose.Schema(
         },
         password: {
             type: String,
-            required: [true, 'Password is required'],
-            minlength: [8, 'Password must be at least 8 characters long'],
+            required: [function () { return !this.googleId && !this.githubId; }, 'Password is required'],
+            minlength: [3, 'Password must be at least 3 characters'],
             select: false, // Don't include password in queries by default
+        },
+        googleId: {
+            type: String,
+            sparse: true,
+        },
+        githubId: {
+            type: String,
+            sparse: true,
+        },
+        provider: {
+            type: String,
+            enum: ['local', 'google', 'github'],
+            default: 'local',
         },
         avatar: {
             type: String,
@@ -65,6 +78,26 @@ const userSchema = new mongoose.Schema(
             enum: ['user', 'admin'],
             default: 'user',
         },
+        isEmailVerified: {
+            type: Boolean,
+            default: false,
+        },
+        emailVerificationToken: {
+            type: String,
+            select: false,
+        },
+        emailVerificationExpires: {
+            type: Date,
+            select: false,
+        },
+        passwordResetToken: {
+            type: String,
+            select: false,
+        },
+        passwordResetExpires: {
+            type: Date,
+            select: false,
+        },
     },
     {
         timestamps: true, // Automatically add createdAt and updatedAt fields
@@ -79,17 +112,12 @@ const userSchema = new mongoose.Schema(
 /**
  * Pre-save middleware to hash password
  */
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function () {
     // Only hash the password if it has been modified (or is new)
-    if (!this.isModified('password')) return next();
+    if (!this.isModified('password') || !this.password) return;
 
-    try {
-        const salt = await bcrypt.genSalt(12);
-        this.password = await bcrypt.hash(this.password, salt);
-        next();
-    } catch (error) {
-        next(error);
-    }
+    const salt = await bcrypt.genSalt(12);
+    this.password = await bcrypt.hash(this.password, salt);
 });
 
 /**
@@ -106,6 +134,28 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 };
 
 /**
+ * Generate email verification token
+ * @returns {string} - Plain text token to send via email
+ */
+userSchema.methods.generateEmailVerificationToken = function () {
+    const token = crypto.randomBytes(32).toString('hex');
+    this.emailVerificationToken = crypto.createHash('sha256').update(token).digest('hex');
+    this.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+    return token;
+};
+
+/**
+ * Generate password reset token
+ * @returns {string} - Plain text token to send via email
+ */
+userSchema.methods.generatePasswordResetToken = function () {
+    const token = crypto.randomBytes(32).toString('hex');
+    this.passwordResetToken = crypto.createHash('sha256').update(token).digest('hex');
+    this.passwordResetExpires = Date.now() + 60 * 60 * 1000; // 1 hour
+    return token;
+};
+
+/**
  * Method to get public user profile (without sensitive data)
  * @returns {Object} - Public user data
  */
@@ -113,6 +163,10 @@ userSchema.methods.getPublicProfile = function () {
     const userObject = this.toObject();
     delete userObject.password;
     delete userObject.__v;
+    delete userObject.emailVerificationToken;
+    delete userObject.emailVerificationExpires;
+    delete userObject.passwordResetToken;
+    delete userObject.passwordResetExpires;
 
     // Map MongoDB _id to id for frontend compatibility
     if (userObject._id) {

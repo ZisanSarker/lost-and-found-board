@@ -92,6 +92,7 @@ export const ITEM_STATUS = Object.freeze({
     ACTIVE: 'active',
     CLAIMED: 'claimed',
     CLOSED: 'closed',
+    RESOLVED: 'resolved',
 });
 
 // ============================================

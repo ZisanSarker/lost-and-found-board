@@ -73,6 +73,20 @@ export const errorHandler = (err, req, res, next) => {
         );
     }
 
+    // Multer file upload errors
+    if (err.name === 'MulterError') {
+        let message = 'File upload error';
+        if (err.code === 'LIMIT_FILE_SIZE') message = 'File too large. Maximum size is 5MB.';
+        if (err.code === 'LIMIT_FILE_COUNT') message = 'Too many files. Maximum is 5.';
+        if (err.code === 'LIMIT_UNEXPECTED_FILE') message = 'Unexpected file field.';
+
+        return errorResponse(
+            res,
+            STATUS_CODES.BAD_REQUEST,
+            message
+        );
+    }
+
     // JWT errors
     if (err.name === 'JsonWebTokenError') {
         return errorResponse(
